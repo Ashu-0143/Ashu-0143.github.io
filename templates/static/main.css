@@ -1,0 +1,30 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+body{
+    background: #000000;
+}
+nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background: #202020;
+}
+nav .title{
+    font-size: 24px;
+    font-weight: 600;
+    color: rgb(187, 187, 187)181;
+}
+nav .links a{
+    text-decoration: none;
+    color: #888181;
+    margin-left: 20px;
+    font-size: 18px;
+}
+nav .links a:hover{
+    color: #979797;
+}
