@@ -13,7 +13,6 @@ nav{
     justify-content: space-between;
     align-items: center;
     padding: 20px 50px;
-
     background: #969696;
 }
 nav .title{
@@ -26,22 +25,10 @@ nav .links a{
     text-decoration: none;
     color: #555555f1;
     margin-left: 20px;
+    display: inline-block;
     font-family: "Inter", sans-serif;
     font-size: 18px;
 }
 nav .links a:hover{
     color: #ffffff;
-}
-marquee{
-    margin: 0;
-}
-.m{
-    
-    
-    letter-spacing: 10px;
-    padding: 0;
-    width: 100%;
-    color: #0a0a0a;
-    font-size: 16px;
-    display:inline-flex;
 }
