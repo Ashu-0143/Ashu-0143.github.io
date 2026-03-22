@@ -6,44 +6,13 @@
                "Helvetica Neue", Arial, sans-serif;
 }
 body{
-    background: #5f5f5f;
-}
-.home span a{
-    color: inherit;
-    color: rgba(255,0,0,0.8);
-  text-decoration: none;
-}
-.pages{
-
-margin: 3px 20px;
-}
-.page{
-    
-    width: 100dvh;
-    height: 100dvh;
-    
+    background-image: url("https://static.vecteezy.com/system/resources/previews/000/696/278/large_2x/textured-black-background-vector.jpg");
 }
 nav{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 50px;
-    background: #969696;
+    background-color: rgba(255,255,255,0.5);
 }
-nav .title{
+.headingTitle{
     font-size: 30px;
-    font-weight: 600;
-    font-family: "Montserrat", sans-serif;
-    
-}
-nav .links a{
-    text-decoration: none;
-    color: #555555f1;
-    margin-left: 20px;
-    display: inline-block;
-    font-family: "Inter", sans-serif;
-    font-size: 18px;
-}
-nav .links a:hover{
-    color: #ffffff;
+    color: yellowgreen;
+    padding-left: 10px;
 }
