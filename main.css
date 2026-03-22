@@ -42,7 +42,7 @@ background-image: url("https://img.freepik.com/premium-vector/black-texture-back
     cursor: pointer;
 }
 .grid .game:hover{
-    background-color: rgba(46, 46, 46, 0.5);
+    background-color: rgba(36, 34, 34, 0.5);
     border: none;
     border-radius: 12px;
     margin: 5px;
