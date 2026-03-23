@@ -1,9 +1,12 @@
 
 $(document).ready(function(){
-alert("jQuery working!");
-  $(".game").on("click",function(){
-    $(".game").toggle();
+
+  $(".g").on("click",function(){
+    $(".g").toggle();
     $(this).toggle("fast");
     
+  });
+  $(".more").on("click",function(){
+     window.location.href = "https://www.friv.com/old/"
   });
 });
