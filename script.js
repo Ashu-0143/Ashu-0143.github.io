@@ -1,3 +1,5 @@
-$(".game").on( "click", function() {
-  alert( $( this ).text() );
-})
+function test(){
+  $(".games").click(function(){
+    $(".game").toggle();
+  })
+}
