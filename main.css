@@ -7,11 +7,12 @@
 }
 
 body {
-background-image: url("https://img.freepik.com/premium-vector/black-texture-background-abstract-black-background-black-pattern_672416-224.jpg");}
+    background-image: url("https://img.freepik.com/premium-vector/black-texture-background-abstract-black-background-black-pattern_672416-224.jpg");
+}
 
 .navbar {
-    
-    margin-bottom:60px;
+
+    margin-bottom: 60px;
 }
 
 .headingTitle {
@@ -26,7 +27,7 @@ background-image: url("https://img.freepik.com/premium-vector/black-texture-back
     width: 80%;
     margin: auto;
     color: rgb(54, 54, 54);
-    
+
 }
 
 .grid .game {
@@ -41,7 +42,8 @@ background-image: url("https://img.freepik.com/premium-vector/black-texture-back
     font-size: 25px;
     cursor: pointer;
 }
-.grid .game:hover{
+
+.grid .game:hover {
     background-color: rgba(36, 34, 34, 0.5);
     border: none;
     border-radius: 12px;
@@ -51,41 +53,77 @@ background-image: url("https://img.freepik.com/premium-vector/black-texture-back
     text-align: center;
     font-size: 25px;
 }
-.friends div{
-background-color: rgba(25, 28, 31, 0.1);
+
+.friends div {
+    background-color: rgba(25, 28, 31, 0.1);
     border: 2px solid rgba(110, 110, 110, 0.5);
     border-radius: 12px;
     margin: 5px;
-    
+
     color: rgb(0, 255, 0);
     justify-content: space-around;
     padding: 10px;
     text-align: center;
     font-size: 25px;
-   
+
 }
-.btn-primary{
+
+.btn-primary {
     color: rgb(0, 255, 0);
     background-color: transparent;
     border: 3px solid rgb(0, 255, 0);
 }
-.btn-primary:hover{
-    color:green;
+
+.btn-primary:hover {
+    color: green;
     border: none;
     background-color: transparent;
     border: 3px solid black;
 }
-.friends div p{
-    
+
+.friends div p {
+
     padding: 5px 0;
     display: flex;
-justify-content: space-around;
+    justify-content: space-around;
 }
-iframe{
-    filter:blur(6px) brightness(0.3);
+
+iframe {
+    filter: blur(6px) brightness(0.3);
 
     width: 100%;
     height: 400px;
     border: none;
     border-radius: 12px;
+}
+.game1Center{
+    display: none;
+    padding: 20px 0;
+}
+.game1Center input {
+    
+    border-radius: 5px;
+    display: inline-block;
+    width: 100px;
+    font-size: 20px;
+    padding: 0 20px;
+    padding: 5px;
+    border: 2px solid rgb(134, 134, 134);
+    background-color: transparent;
+    color: rgb(210, 219, 210);
+    text-align: center;
+}
+.range{
+    color: rgb(247, 247, 247);
+
+}
+.resultNum{
+    color: rgb(155, 216, 63);
+    padding: 5px;
+}
+#guessButton{
+    padding: 8px;
+    background-color: transparent;
+    border:5px solid rgb(53, 252, 63);
+    color: bisque;
 }

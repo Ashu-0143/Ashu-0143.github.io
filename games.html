@@ -53,6 +53,18 @@
   <div class="grid games">
     <div class="game game1 g">Number Guessing</div>
     <div class="game game2 g">Text Typing</div>
-    <div class="game more ">...more</div>
+    <div class="game more g">...more</div>
 
   </div>
+  <center>
+  <div class="game1Center">
+    <h3 class="range">Number Range</h3>
+    <input id="minNumber"required type="text" inputmode="numeric" min="0" value="1" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+    <input id="maxNumber"required type="text" inputmode="numeric" max="999" value="999" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+    <br>
+    <input id="guessNumber" required type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+    <button id="guessButton"  >Enter</button>
+    <br><br>
+    <p class="resultNum">HAHAHA</p>
+  </div>
+  </center>
