@@ -8,7 +8,7 @@ $(document).ready(function () {
 
     // reset inputs
     $("#minNumber").val("1");
-    $("#maxNumber").val("999");
+    $("#maxNumber").val("");
     $("#guessNumber").val("");
     $(".resultNum").text("");
 
