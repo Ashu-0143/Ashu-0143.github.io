@@ -64,12 +64,12 @@ $(document).ready(function () {
 
   });
 
-  $(".game2").on("click", function () {
+  $(".game2").on("click", function (){
     $(".g").toggle();
     $(this).toggle("fast");
   });
 $(".more").on("click", function () {
-    window.location.href = "https://www.friv.com/old/";
+    window.location.href = "https://www.friv.com/old";
   
   });
 });
