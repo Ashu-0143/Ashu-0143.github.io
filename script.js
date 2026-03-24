@@ -6,7 +6,6 @@ $(document).ready(function () {
 
   $(".game1").on("click", function () {
 
-    // reset inputs
     $("#minNumber").val("1");
     $("#maxNumber").val("");
     $("#guessNumber").val("");
@@ -14,12 +13,10 @@ $(document).ready(function () {
 
     trails = 0;
 
-    // UI toggle
     $(".g").toggle();
     $(this).toggle("fast");
-    $(".game1Center").show("fast");
+    $(".game1Center").toggle("fast");
 
-    // generate number once when game starts
     let min = parseInt($("#minNumber").val());
     let max = parseInt($("#maxNumber").val());
     random = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -71,6 +68,9 @@ $(document).ready(function () {
     $(".g").toggle();
     $(this).toggle("fast");
   });
-
+$(".more").on("click", function () {
+    window.location.href = "https://www.friv.com/old/";
+  
+  });
 });
 

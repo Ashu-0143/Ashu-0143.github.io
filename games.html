@@ -59,12 +59,15 @@
   <center>
   <div class="game1Center">
     <h3 class="range">Number Range</h3>
-    <input id="minNumber"required type="text" inputmode="numeric" min="0" value="1" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-    <input id="maxNumber"required type="text" inputmode="numeric" max="999" value="999" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+    <input id="minNumber" class="inputPack" type="text" inputmode="numeric" min="0" value="1" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+    <input id="maxNumber" class="inputPack" type="text" inputmode="numeric" max="999" value="999" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
     <br>
-    <input id="guessNumber" required type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-    <button id="guessButton"  >Enter</button>
-    <br><br>
-    <p class="resultNum">HAHAHA</p>
+    <div class="submitPack">
+          <input id="guessNumber" required type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+    <button id="guessButton"  ><b>Check ></b></button>
+
+    </div>
+    
+    <h2 class="resultNum">HAHAHA</h2>
   </div>
   </center>

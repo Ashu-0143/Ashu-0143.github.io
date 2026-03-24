@@ -122,8 +122,26 @@ iframe {
     padding: 5px;
 }
 #guessButton{
-    padding: 8px;
+    border-radius: 10px;
+    padding: 6px;
+    background-color: transparent;
+    border:5px solid rgba(53, 252, 63,0.5);
+    color: bisque;
+}
+#guessButton:hover{
     background-color: transparent;
     border:5px solid rgb(53, 252, 63);
-    color: bisque;
+    color: rgb(53, 252, 63);
+}
+.inputPack:hover{
+    background-color: transparent;
+    border: 2px solid rgb(53, 252, 63);
+    color: rgb(53, 252, 63);
+    
+}
+.submitPack{
+    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
