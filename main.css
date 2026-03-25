@@ -9,6 +9,18 @@
 body {
     background-image: url("https://img.freepik.com/premium-vector/black-texture-background-abstract-black-background-black-pattern_672416-224.jpg");
 }
+body h1{
+    color: rgb(155, 155, 148);
+    padding: 20px;
+}
+.highlight{
+    cursor: pointer;
+    color: rgb(0, 255, 0);
+}
+.highlight {
+
+    text-decoration: none;
+}
 
 .navbar {
 

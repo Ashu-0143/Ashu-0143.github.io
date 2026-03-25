@@ -63,9 +63,10 @@
     <input id="maxNumber" class="inputPack" type="text" inputmode="numeric" max="999" value="999" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
     <br>
     <div class="submitPack">
+      <form >
           <input id="guessNumber" required type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-    <button id="guessButton"  ><b>Check ></b></button>
-
+    <button id="guessButton" type="reset"><b>Check ></b></button>
+</form>
     </div>
     
     <h2 class="resultNum">HAHAHA</h2>

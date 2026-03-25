@@ -53,7 +53,12 @@ $(document).ready(function () {
   } else if (guess < random) {
     $(".resultNum").text("Too Low!");
   } else {
-    $(".resultNum").text("Correct in " + trails + " tries");
+    if (trails === 1){
+    $(".resultNum").text("Guessed in 1st Try !!");
+    }
+    else{
+      $(".resultNum").text("Guessed in " + trails + " tries!!");
+    }
     trails = 0; 
     $("#minNumber").val("");
     $("#maxNumber").val("");
@@ -72,5 +77,8 @@ $(".more").on("click", function () {
     window.location.href = "https://www.friv.com/old";
   
   });
+
+ 
+  
 });
 
