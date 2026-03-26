@@ -9,7 +9,9 @@
 body {
     background-image: url("https://img.freepik.com/premium-vector/black-texture-background-abstract-black-background-black-pattern_672416-224.jpg");
 }
-body h1{
+.homeIntro{
+    margin-bottom: 0;
+    padding-bottom: 0;
     color: rgb(155, 155, 148);
 
 }
@@ -168,22 +170,33 @@ iframe {
     padding: 10px 4px;
     user-select: none;
 }
+.colors{
+    width: 90%;
+    display: flex;
+    overflow: hidden;
+    margin: auto;
+}
 .decorLine{
-    color:red;
+    text-align: center;
+    margin: 0 auto;
     padding: 0;
-    margin: 0;
-    animation: hoverStop 0.1s linear  infinite;
+    width: 100%;
+    display: inline-flex;
+    color:red;
+    
+    
+    animation: rainbow 3s alternate-reverse ease-in-out infinite;
    
 }
-.decorLine:hover{
-    animation:rainbow 1s linear infinite;
-}
+
+
 .icons{
+    overflow: hidden;
    display: inline-flex;
     animation: hoverStop 5s linear alternate-reverse infinite;
     position: fixed;
     bottom: 1dvh;
-    width: 100%;
+
     left: 0;
     
 }
@@ -201,34 +214,29 @@ iframe {
 }
 @keyframes hoverStop {
      0% {
-    /* Start by shifting the content left so the second half is visible */
-    transform: translateX(0%);
+    transform: translateX(-10%);
   }
   20% {
-    /* Move it to the right until it reaches the end of the first half */
-    transform: translateX(100%);
+    transform: translateX(40%);
   }
   40% {
-    /* Move it to the right until it reaches the end of the first half */
-    transform: translateX(0%);
+    transform: translateX(-10%);
   }
   60% {
-    /* Move it to the right until it reaches the end of the first half */
-    transform: translateX(100%);
+    transform: translateX(40%);
   }
  80% {
-    /* Move it to the right until it reaches the end of the first half */
-    transform: translateX(0%);
+    transform: translateX(-10%);
   }
   100% {
-    /* Move it to the right until it reaches the end of the first half */
-    transform: translateX(100%);
+    transform: translateX(40%);
   }
 
 }
  @keyframes rainbow{
-    0%{color: rgb(16, 241, 241);
-    transform: translateX(0%);}
+    0%{
+        transform: translateX(-20%);
+        color: rgb(16, 241, 241);}
     10%{color: rgb(0, 255, 0);}
     20%{color: rgb(255, 230, 0);}
     30%{color: rgb(255, 0, 0);}
