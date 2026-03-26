@@ -57,8 +57,8 @@ body {
     cursor: pointer;
 }
 
-.grid .game:hover {
-    background-color: rgba(36, 34, 34, 0.5);
+.games1 .game:hover {
+    background-color: rgba(54, 161, 102, 0.5);
     border: none;
     border-radius: 12px;
     margin: 5px;
@@ -67,6 +67,17 @@ body {
     text-align: center;
     font-size: 25px;
 }
+.games2 .game:hover {
+    background-color: rgba(241, 89, 89, 0.534);
+    border: none;
+    border-radius: 12px;
+    margin: 5px;
+    justify-content: space-around;
+    padding: 10px;
+    text-align: center;
+    font-size: 25px;
+}
+
 
 .friends div {
     background-color: rgba(25, 28, 31, 0.1);
@@ -206,11 +217,13 @@ iframe {
     animation: hoverStop 5s linear alternate-reverse infinite;
     position: fixed;
     bottom: 1dvh;
-
+    width: 250%;
     left: 0;
     
 }
 .icons:hover{
+    color: rgb(0, 0, 0);
+    text-shadow: rgb(255, 255, 255) 0px 0px 10px;
     animation-play-state: paused;
 }
 .icon:hover{  
