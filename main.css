@@ -109,6 +109,12 @@ iframe {
     border: none;
     border-radius: 12px;
 }
+.gameHeadings{
+    padding: 20px 0;
+    text-align: center;
+    color: rgb(210, 219, 210);
+    
+}
 .game1Center{
     display: none;
     padding: 20px 0;
@@ -165,18 +171,22 @@ iframe {
 
 }
 .aboutIntro h4{
+    font-size: 20px;
     width: 100%;
     background-color: rgba(105, 104, 104, 0.144);
     padding: 10px 4px;
     user-select: none;
 }
 .colors{
+    display: flex;
     width: 90%;
     display: flex;
     overflow: hidden;
     margin: auto;
+    
 }
 .decorLine{
+    display: flex;
     text-align: center;
     margin: 0 auto;
     padding: 0;
@@ -211,6 +221,9 @@ iframe {
     padding: 3px 20px;
     color: rgb(0, 255, 255);
     font-size: 30px;
+}
+.games2 a{
+    text-decoration: none;
 }
 @keyframes hoverStop {
      0% {
