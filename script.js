@@ -96,14 +96,15 @@ import {
 
 // ✅ YOUR CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
-  authDomain: "ashu-0143.firebaseapp.com",
-  projectId: "ashu-0143",
-  storageBucket: "ashu-0143.firebasestorage.app",
-  messagingSenderId: "910444439310",
-  appId: "1:910444439310:web:6f327391bbea321684195f",
-  measurementId: "G-5SELW1ZK3Z"
-};
+    apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
+    authDomain: "ashu-0143.firebaseapp.com",
+    projectId: "ashu-0143",
+    storageBucket: "ashu-0143.firebasestorage.app",
+    messagingSenderId: "910444439310",
+    appId: "1:910444439310:web:6f327391bbea321684195f",
+    measurementId: "G-5SELW1ZK3Z"
+  };
+
 
 
 // init
