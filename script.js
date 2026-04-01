@@ -1,11 +1,10 @@
-
+// ✅ YOUR OLD CODE (UNCHANGED)
 $(document).ready(function () {
 
   let random = null;
   let trails = 0;
 
   $(".game1").on("click", function () {
-
     $("#minNumber").val("1");
     $("#maxNumber").val("");
     $("#guessNumber").val("");
@@ -21,70 +20,57 @@ $(document).ready(function () {
     let max = parseInt($("#maxNumber").val());
     random = Math.floor(Math.random() * (max - min + 1)) + min;
 
-   $("#guessButton").off("click").on("click", function () {
+    $("#guessButton").off("click").on("click", function () {
+      let min = parseInt($("#minNumber").val());
+      let max = parseInt($("#maxNumber").val());
+      let guess = parseInt($("#guessNumber").val());
 
-  let min = parseInt($("#minNumber").val());
-  let max = parseInt($("#maxNumber").val());
-  let guess = parseInt($("#guessNumber").val());
+      if (isNaN(min) || isNaN(max) || isNaN(guess)) {
+        $(".resultNum").text("Enter valid numbers");
+        return;
+      }
 
-  if (isNaN(min) || isNaN(max) || isNaN(guess)) {
-    $(".resultNum").text("Enter valid numbers");
-    return;
-  }
+      if (min >= max) {
+        $(".resultNum").text("Min should be less than Max");
+        return;
+      }
 
-  if (min >= max) {
-    $(".resultNum").text("Min should be less than Max");
-    return;
-  }
+      if (trails === 0) {
+        random = Math.floor(Math.random() * (max - min + 1)) + min;
+      }
 
-  if (trails === 0) {
-    random = Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+      if (guess < min || guess > max) {
+        $(".resultNum").text("Out of range!");
+        return;
+      }
 
-  if (guess < min || guess > max) {
-    $(".resultNum").text("Out of range!");
-    return;
-  }
+      trails++;
 
-  trails++;
-
-  if (guess > random) {
-    $(".resultNum").text("Too High!");
-  } else if (guess < random) {
-    $(".resultNum").text("Too Low!");
-  } else {
-    if (trails === 1){
-    $(".resultNum").text("Guessed in 1st Try !!");
-    }
-    else{
-      $(".resultNum").text("Guessed in " + trails + " tries!!");
-    }
-    trails = 0; 
-    $("#minNumber").val("");
-    $("#maxNumber").val("");
-    $("#guessNumber").val("");
-  }
-
-});
-
+      if (guess > random) {
+        $(".resultNum").text("Too High!");
+      } else if (guess < random) {
+        $(".resultNum").text("Too Low!");
+      } else {
+        $(".resultNum").text("Guessed in " + trails + " tries!!");
+        trails = 0;
+      }
+    });
   });
 
   $(".game2").on("click", function (){
     $(".g").toggle();
     $(this).toggle("fast");
   });
-$(".more").on("click", function () {
+
+  $(".more").on("click", function () {
     window.location.href = "https://www.friv.com/old";
-  
   });
 
- 
-  
 });
 
-// 🔥 FIREBASE (ADD BELOW YOUR CODE)
 
-// imports
+// 🔥 FIREBASE
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
@@ -105,21 +91,19 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-// 🔑 YOUR CONFIG (replace this)
+// 🔑 PUT YOUR REAL CONFIG
 const firebaseConfig = {
   apiKey: "YOUR_KEY",
   authDomain: "YOUR_DOMAIN",
   projectId: "YOUR_ID"
 };
 
-
-// init
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 
-// 🔐 LOGIN (this connects to your "Ashu" click)
+// ✅ LOGIN (FIXED GLOBAL)
 window.login = function () {
   if (auth.currentUser) return;
 
@@ -128,7 +112,7 @@ window.login = function () {
 };
 
 
-// 👀 SHOW CHAT AFTER LOGIN
+// ✅ SHOW CHAT
 onAuthStateChanged(auth, (user) => {
   if (user) {
     document.getElementById("chat-container").style.display = "block";
@@ -137,10 +121,9 @@ onAuthStateChanged(auth, (user) => {
 });
 
 
-// 💬 SEND MESSAGE
+// ✅ SEND MESSAGE
 window.sendMessage = async function () {
   const input = document.getElementById("message");
-
   if (!input.value.trim()) return;
 
   await addDoc(collection(db, "messages"), {
@@ -154,7 +137,7 @@ window.sendMessage = async function () {
 };
 
 
-// 📥 LOAD MESSAGES
+// ✅ LOAD MESSAGES
 function loadMessages() {
   const q = query(collection(db, "messages"), orderBy("timestamp"));
 

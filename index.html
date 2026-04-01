@@ -3,63 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <!-- ✅ jQuery (ADD THIS) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Ashu</title>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ✅ KEEP MODULE -->
     <script type="module" src="script.js"></script>
+
     <link rel="stylesheet" href="main.css">
 </head>
+
 <body>
-  <nav class="navbar navbar-dark bg-dark ">
+
+<nav class="navbar navbar-dark bg-dark ">
   <div class="container-fluid">
     <a class="navbar-brand headingTitle" onclick="login()" href="#">Ashu</a>
     
-    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
+
+    <div class="offcanvas offcanvas-end text-bg-dark" id="offcanvasDarkNavbar">
       <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Quick Links</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <h5 class="offcanvas-title">Quick Links</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
       </div>
+
       <div class="offcanvas-body">
-        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="games.html">Games</a>
-          </li>
-           <li class="nav-item">
-            <a class="nav-link" href="friends.html">Friends</a>
-          </li>
-           <li class="nav-item">
-            <a class="nav-link" href="about.html">About</a>
-          </li>
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="games.html">Games</a></li>
+          <li class="nav-item"><a class="nav-link" href="friends.html">Friends</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
         </ul>
-    
       </div>
     </div>
   </div>
 </nav>
+
 <center>
   <div class="homeIntro">
-  <h1>Content will be added soon ... Visit our <a href="games.html "  class="highlight" >Games</a> and <a href="friends.html" class="highlight">Friends</a> page(s).</h1>
+    <h1>Content will be added soon ... Visit our 
+      <a href="games.html" class="highlight">Games</a> and 
+      <a href="friends.html" class="highlight">Friends</a>.
+    </h1>
   </div>
 </center>
 
-     <div class="colors">
+<div class="colors">
+  <h1 class="decorLine" style="color: rgb(0, 255, 0);">----------</h1>
+</div>
 
-    <h1 class="decorLine" style="color: rgb(0, 255, 0);">----------</h1>
-    <div id="chat-container" style="display:none; padding:20px;">
-
+<!-- ✅ CHAT -->
+<div id="chat-container" style="display:none; padding:20px;">
   <div id="chat-box" style="height:300px; overflow-y:auto; border:1px solid #ccc; padding:10px;"></div>
 
   <div style="display:flex; margin-top:10px;">
     <input id="message" class="form-control" placeholder="Type message...">
     <button onclick="sendMessage()" class="btn btn-dark">Send</button>
   </div>
-
 </div>
+
 </body>
 </html>
