@@ -82,3 +82,96 @@ $(".more").on("click", function () {
   
 });
 
+// 🔥 FIREBASE (ADD BELOW YOUR CODE)
+
+// imports
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+// 🔑 YOUR CONFIG (replace this)
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_ID"
+};
+
+
+// init
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+
+// 🔐 LOGIN (this connects to your "Ashu" click)
+window.login = function () {
+  if (auth.currentUser) return;
+
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(auth, provider);
+};
+
+
+// 👀 SHOW CHAT AFTER LOGIN
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById("chat-container").style.display = "block";
+    loadMessages();
+  }
+});
+
+
+// 💬 SEND MESSAGE
+window.sendMessage = async function () {
+  const input = document.getElementById("message");
+
+  if (!input.value.trim()) return;
+
+  await addDoc(collection(db, "messages"), {
+    text: input.value,
+    uid: auth.currentUser.uid,
+    name: auth.currentUser.displayName,
+    timestamp: serverTimestamp()
+  });
+
+  input.value = "";
+};
+
+
+// 📥 LOAD MESSAGES
+function loadMessages() {
+  const q = query(collection(db, "messages"), orderBy("timestamp"));
+
+  onSnapshot(q, (snapshot) => {
+    const chatBox = document.getElementById("chat-box");
+    chatBox.innerHTML = "";
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const div = document.createElement("div");
+
+      if (data.uid === auth.currentUser.uid) {
+        div.style.textAlign = "right";
+      }
+
+      div.innerText = data.name + ": " + data.text;
+      chatBox.appendChild(div);
+    });
+  });
+}
