@@ -1,10 +1,11 @@
-// ✅ YOUR OLD CODE (UNCHANGED)
+// ✅ YOUR GAME CODE
 $(document).ready(function () {
 
   let random = null;
   let trails = 0;
 
   $(".game1").on("click", function () {
+
     $("#minNumber").val("1");
     $("#maxNumber").val("");
     $("#guessNumber").val("");
@@ -21,6 +22,7 @@ $(document).ready(function () {
     random = Math.floor(Math.random() * (max - min + 1)) + min;
 
     $("#guessButton").off("click").on("click", function () {
+
       let min = parseInt($("#minNumber").val());
       let max = parseInt($("#maxNumber").val());
       let guess = parseInt($("#guessNumber").val());
@@ -55,6 +57,7 @@ $(document).ready(function () {
         trails = 0;
       }
     });
+
   });
 
   $(".game2").on("click", function (){
@@ -91,19 +94,25 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-// 🔑 PUT YOUR REAL CONFIG
+// ✅ YOUR CONFIG
 const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
-  projectId: "YOUR_ID"
+  apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
+  authDomain: "ashu-0143.firebaseapp.com",
+  projectId: "ashu-0143",
+  storageBucket: "ashu-0143.firebasestorage.app",
+  messagingSenderId: "910444439310",
+  appId: "1:910444439310:web:6f327391bbea321684195f",
+  measurementId: "G-5SELW1ZK3Z"
 };
 
+
+// init
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 
-// ✅ LOGIN (FIXED GLOBAL)
+// ✅ LOGIN
 window.login = function () {
   if (auth.currentUser) return;
 
@@ -124,6 +133,7 @@ onAuthStateChanged(auth, (user) => {
 // ✅ SEND MESSAGE
 window.sendMessage = async function () {
   const input = document.getElementById("message");
+
   if (!input.value.trim()) return;
 
   await addDoc(collection(db, "messages"), {
