@@ -1,79 +1,4 @@
-// ✅ YOUR GAME CODE
-$(document).ready(function () {
-
-  let random = null;
-  let trails = 0;
-
-  $(".game1").on("click", function () {
-
-    $("#minNumber").val("1");
-    $("#maxNumber").val("");
-    $("#guessNumber").val("");
-    $(".resultNum").text("");
-
-    trails = 0;
-
-    $(".g").toggle();
-    $(this).toggle("fast");
-    $(".game1Center").toggle("fast");
-
-    let min = parseInt($("#minNumber").val());
-    let max = parseInt($("#maxNumber").val());
-    random = Math.floor(Math.random() * (max - min + 1)) + min;
-
-    $("#guessButton").off("click").on("click", function () {
-
-      let min = parseInt($("#minNumber").val());
-      let max = parseInt($("#maxNumber").val());
-      let guess = parseInt($("#guessNumber").val());
-
-      if (isNaN(min) || isNaN(max) || isNaN(guess)) {
-        $(".resultNum").text("Enter valid numbers");
-        return;
-      }
-
-      if (min >= max) {
-        $(".resultNum").text("Min should be less than Max");
-        return;
-      }
-
-      if (trails === 0) {
-        random = Math.floor(Math.random() * (max - min + 1)) + min;
-      }
-
-      if (guess < min || guess > max) {
-        $(".resultNum").text("Out of range!");
-        return;
-      }
-
-      trails++;
-
-      if (guess > random) {
-        $(".resultNum").text("Too High!");
-      } else if (guess < random) {
-        $(".resultNum").text("Too Low!");
-      } else {
-        $(".resultNum").text("Guessed in " + trails + " tries!!");
-        trails = 0;
-      }
-    });
-
-  });
-
-  $(".game2").on("click", function (){
-    $(".g").toggle();
-    $(this).toggle("fast");
-  });
-
-  $(".more").on("click", function () {
-    window.location.href = "https://www.friv.com/old";
-  });
-
-});
-
-
-// 🔥 FIREBASE
-
+// 🔥 FIREBASE IMPORTS
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
@@ -96,18 +21,17 @@ import {
 
 // ✅ YOUR CONFIG
 const firebaseConfig = {
-    apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
-    authDomain: "ashu-0143.firebaseapp.com",
-    projectId: "ashu-0143",
-    storageBucket: "ashu-0143.firebasestorage.app",
-    messagingSenderId: "910444439310",
-    appId: "1:910444439310:web:6f327391bbea321684195f",
-    measurementId: "G-5SELW1ZK3Z"
-  };
+  apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
+  authDomain: "ashu-0143.firebaseapp.com",
+  projectId: "ashu-0143",
+  storageBucket: "ashu-0143.firebasestorage.app",
+  messagingSenderId: "910444439310",
+  appId: "1:910444439310:web:6f327391bbea321684195f",
+  measurementId: "G-5SELW1ZK3Z"
+};
 
 
-
-// init
+// ✅ INIT
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -122,11 +46,16 @@ window.login = function () {
 };
 
 
-// ✅ SHOW CHAT
+// ✅ AUTH STATE
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    document.getElementById("chat-container").style.display = "block";
-    loadMessages();
+    const chatContainer = document.getElementById("chat-container");
+
+    // Only run if chat exists (important for safety)
+    if (chatContainer) {
+      chatContainer.style.display = "block";
+      loadMessages();
+    }
   }
 });
 
@@ -135,7 +64,7 @@ onAuthStateChanged(auth, (user) => {
 window.sendMessage = async function () {
   const input = document.getElementById("message");
 
-  if (!input.value.trim()) return;
+  if (!input || !input.value.trim()) return;
 
   await addDoc(collection(db, "messages"), {
     text: input.value,
@@ -150,16 +79,19 @@ window.sendMessage = async function () {
 
 // ✅ LOAD MESSAGES
 function loadMessages() {
+  const chatBox = document.getElementById("chat-box");
+  if (!chatBox) return;
+
   const q = query(collection(db, "messages"), orderBy("timestamp"));
 
   onSnapshot(q, (snapshot) => {
-    const chatBox = document.getElementById("chat-box");
     chatBox.innerHTML = "";
 
     snapshot.forEach(doc => {
       const data = doc.data();
       const div = document.createElement("div");
 
+      // Right align own messages
       if (data.uid === auth.currentUser.uid) {
         div.style.textAlign = "right";
       }
@@ -167,5 +99,8 @@ function loadMessages() {
       div.innerText = data.name + ": " + data.text;
       chatBox.appendChild(div);
     });
+
+    // Auto scroll down
+    chatBox.scrollTop = chatBox.scrollHeight;
   });
 }
