@@ -238,6 +238,75 @@ iframe {
 .games2 a{
     text-decoration: none;
 }
+/* Chat container */
+#chat-container {
+  max-width: 600px;
+  margin: 30px auto;
+  background: #111;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* Chat box */
+#chat-box {
+  height: 350px;
+  overflow-y: auto;
+  background: #1a1a1a;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Message bubbles */
+#chat-box div {
+  max-width: 70%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  word-wrap: break-word;
+}
+
+/* Other users */
+#chat-box div {
+  background: #2a2a2a;
+  color: white;
+  align-self: flex-start;
+}
+
+/* Your messages */
+#chat-box div[style*="right"] {
+  background: #0d6efd;
+  color: white;
+  align-self: flex-end;
+}
+
+/* Input area */
+#chat-container input {
+  border-radius: 8px;
+  border: none;
+  padding: 8px;
+  margin-right: 8px;
+}
+
+/* Send button */
+#chat-container button {
+  border-radius: 8px;
+  padding: 8px 15px;
+}
+
+/* Scrollbar */
+#chat-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+#chat-box::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 10px;
+}
+
 @keyframes hoverStop {
      0% {
     transform: translateX(-10%);
