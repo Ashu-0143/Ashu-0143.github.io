@@ -3,19 +3,180 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Summary</title>
-<link rel="stylesheet" href="style.css">
+
+<link rel="stylesheet" href="summary.css">
+
+<style>
+body {
+    font-family: Arial;
+    background:#f4f6f9;
+    padding:15px;
+}
+
+h2 {
+    text-align:center;
+}
+
+/* TOP BUTTONS */
+.filters {
+    display:flex;
+    gap:10px;
+}
+
+.filters button {
+    flex:1;
+    padding:12px;
+    font-size:16px;
+    border:none;
+    border-radius:10px;
+}
+
+/* COLORS */
+.today { background:#007bff; color:white; }
+.yest { background:#6c757d; color:white; }
+.month { background:#28a745; color:white; }
+
+/* TOTAL CARD */
+.totalCard {
+    margin-top:15px;
+    background:linear-gradient(135deg,#4facfe,#00f2fe);
+    color:white;
+    padding:20px;
+    border-radius:15px;
+    text-align:center;
+    font-size:32px;
+}
+
+/* BAR CHART */
+.barWrap {
+    margin-top:20px;
+}
+
+.barRow {
+    margin:10px 0;
+}
+
+.barLabel {
+    font-size:14px;
+}
+
+.bar {
+    height:20px;
+    background:#ddd;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.fill {
+    height:100%;
+    background:#28a745;
+}
+
+/* BACK */
+.back {
+    background:#444;
+    color:white;
+    padding:10px;
+    width:100%;
+    border:none;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+</style>
 </head>
 
 <body>
 
-<button onclick="go('index.html')">⬅ Back</button>
+<button class="back" onclick="goBack()">⬅ Back</button>
 
-<button onclick="loadSummary('today')">Today</button>
-<button onclick="loadSummary('yesterday')">Yesterday</button>
-<button onclick="loadSummary('month')">This Month</button>
+<h2>📊 Summary</h2>
 
-<div id="summaryData"></div>
+<div class="filters">
+    <button class="today" onclick="loadData('today')">Today</button>
+    <button class="yest" onclick="loadData('yesterday')">Yesterday</button>
+    <button class="month" onclick="loadData('month')">Month</button>
+</div>
 
-<script src="script.js"></script>
+<div class="totalCard" id="total">₹0</div>
+
+<div class="barWrap" id="bars"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
+  authDomain: "ashu-0143.firebaseapp.com",
+  projectId: "ashu-0143"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.goBack = ()=> location.href="index.html";
+
+// 📅 Helpers
+function getDate(offset=0){
+    let d = new Date();
+    d.setDate(d.getDate()+offset);
+    return d.toISOString().split("T")[0];
+}
+
+// 📊 LOAD DATA
+window.loadData = async function(type){
+    let snap = await getDocs(collection(db,"daily"));
+
+    let today = getDate();
+    let yesterday = getDate(-1);
+    let month = new Date().getMonth();
+
+    let total = 0;
+    let days = [];
+
+    snap.forEach(doc=>{
+        let d = doc.data();
+
+        if(type==='today' && d.date!==today) return;
+        if(type==='yesterday' && d.date!==yesterday) return;
+        if(type==='month'){
+            if(new Date(d.date).getMonth()!==month) return;
+        }
+
+        total += d.total || 0;
+
+        days.push({
+            date: d.date,
+            total: d.total
+        });
+    });
+
+    // TOTAL
+    document.getElementById("total").innerText = "₹" + total;
+
+    // BARS
+    let max = Math.max(...days.map(d=>d.total), 1);
+
+    let html = "";
+
+    days.forEach(d=>{
+        let width = (d.total / max) * 100;
+
+        html += `
+        <div class="barRow">
+            <div class="barLabel">${d.date} - ₹${d.total}</div>
+            <div class="bar">
+                <div class="fill" style="width:${width}%"></div>
+            </div>
+        </div>`;
+    });
+
+    document.getElementById("bars").innerHTML = html;
+}
+
+// default load
+loadData('today');
+</script>
+
 </body>
 </html>
