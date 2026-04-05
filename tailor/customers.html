@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customers</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+.history {
+    background:white;
+    padding:10px;
+    margin-top:10px;
+    border-radius:10px;
+    font-size:18px;
+    line-height:1.6;
+}
+
+.plus { color:red; }
+.minus { color:green; }
+
+.total {
+    font-size:22px;
+    margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<button onclick="go('index.html')">⬅ Back</button>
+
+<h2>Customers</h2>
+
+<input id="phone" placeholder="Enter Phone" oninput="loadCustomer()">
+
+<div id="custArea"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
+  authDomain: "ashu-0143.firebaseapp.com",
+  projectId: "ashu-0143"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.go = function(p){ window.location.href=p; }
+
+function getLocal(){
+    return JSON.parse(localStorage.getItem("customers")||"{}");
+}
+function saveLocal(c){
+    localStorage.setItem("customers",JSON.stringify(c));
+}
+
+window.loadCustomer = async function(){
+    let phone = document.getElementById("phone").value;
+    let area = document.getElementById("custArea");
+
+    if(phone.length !== 10){
+        area.innerHTML="";
+        return;
+    }
+
+    let local = getLocal();
+
+    // Try local first
+    let data = local[phone];
+
+    // If not found, check Firebase
+    if(!data){
+        let ref = doc(db,"customers",phone);
+        let snap = await getDoc(ref);
+        if(snap.exists()){
+            data = snap.data();
+            local[phone] = data;
+            saveLocal(local);
+        }
+    }
+
+    // If still not found → new customer
+    if(!data){
+        let name = prompt("Enter Name:");
+        data = { name, history: [] };
+        local[phone] = data;
+        saveLocal(local);
+
+        await setDoc(doc(db,"customers",phone),data);
+    }
+
+    renderCustomer(phone, data);
+}
+
+function renderCustomer(phone, data){
+    let total = 0;
+    let historyHTML = "";
+
+    data.history.forEach(h=>{
+        total += h.amount;
+        historyHTML += `<div class="${h.amount>0?'plus':'minus'}">
+            ${h.amount>0?'+':''}${h.amount}
+        </div>`;
+    });
+
+    document.getElementById("custArea").innerHTML = `
+        <h3>${data.name}</h3>
+
+        <div class="history">
+            ${historyHTML}
+            <hr>
+            <b>Total: ₹${total}</b>
+            <hr>
+        </div>
+
+        <button onclick="addAmt('${phone}',1)">➕ Add Work</button>
+        <button onclick="addAmt('${phone}',-1)">💰 Payment</button>
+    `;
+}
+
+window.addAmt = async function(phone,type){
+    let amt = parseInt(prompt("Enter amount:"));
+    if(!amt) return;
+
+    let local = getLocal();
+    let data = local[phone];
+
+    data.history.push({ amount: type * amt });
+
+    saveLocal(local);
+
+    await setDoc(doc(db,"customers",phone),data);
+
+    renderCustomer(phone,data);
+}
+</script>
+
+</body>
+</html>

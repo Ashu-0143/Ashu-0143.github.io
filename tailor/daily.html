@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Work</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+.grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.box {
+    padding:20px;
+    color:white;
+    font-size:18px;
+    text-align:center;
+    border-radius:15px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+
+.box span {
+    font-size:14px;
+}
+
+.totalBox {
+    background:white;
+    padding:15px;
+    margin-top:10px;
+    border-radius:10px;
+}
+
+.math {
+    font-size:18px;
+    margin-top:10px;
+}
+
+.red {background:#e74c3c;}
+.purple {background:#8e44ad;}
+.green {background:#27ae60;}
+.blue {background:#2980b9;}
+.orange {background:#f39c12;}
+</style>
+</head>
+
+<body>
+
+<button onclick="go('index.html')">⬅ Back</button>
+
+<h2>Daily Work</h2>
+
+<div class="grid">
+    <div class="box red" onclick="addWork('Blouse',250)">👚 Blouse <span>₹250</span></div>
+    <div class="box purple" onclick="addWork('Model',300)">✨ Model <span>₹300</span></div>
+    <div class="box green" onclick="addWork('Saree',50)">🧵 Saree <span>₹50</span></div>
+    <div class="box blue" onclick="addWork('Frock',500)">👗 Frock <span>₹500</span></div>
+    <div class="box orange" onclick="addWork('Nighty',30)">🌙 Nighty <span>₹30</span></div>
+</div>
+
+<button onclick="undo()">↩ Undo Last</button>
+
+<input id="manual" placeholder="Enter manual amount">
+<button onclick="addManual()">➕ Add Manual</button>
+
+<div class="totalBox">
+    <div id="mathView" class="math"></div>
+    <hr>
+    <h2>Total: ₹<span id="total">0</span></h2>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "ashu-0143.firebaseapp.com",
+  projectId: "ashu-0143",
+  storageBucket: "ashu-0143.firebasestorage.app",
+  messagingSenderId: "910444439310",
+  appId: "1:910444439310:web:6f327391bbea321684195f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.go = function(page){
+    window.location.href = page;
+}
+
+let actions = JSON.parse(localStorage.getItem("actions")||"[]");
+
+function save(){
+    localStorage.setItem("actions",JSON.stringify(actions));
+}
+
+window.addWork = async function(name,amount){
+    actions.push({name,amount});
+    save();
+    render();
+
+    await addDoc(collection(db,"daily"),{
+        name,amount,date:new Date().toISOString()
+    });
+}
+
+window.addManual = function(){
+    let amt = parseInt(document.getElementById("manual").value);
+    if(!amt) return;
+
+    actions.push({name:"Manual",amount:amt});
+    save();
+    render();
+    document.getElementById("manual").value="";
+}
+
+window.undo = function(){
+    actions.pop();
+    save();
+    render();
+}
+
+function render(){
+    let total=0;
+    let math="";
+
+    actions.forEach(a=>{
+        total+=a.amount;
+        math += `₹${a.amount} + `;
+    });
+
+    math = math.slice(0,-2);
+
+    document.getElementById("total").innerText=total;
+    document.getElementById("mathView").innerText=math;
+}
+
+render();
+</script>
+
+</body>
+</html>

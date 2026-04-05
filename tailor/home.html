@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work App</title>
+
+<style>
+body { font-family: Arial; margin:0; background:#f2f2f2; }
+
+.screen { display:none; padding:15px; }
+.active { display:block; }
+
+button {
+    width:100%;
+    padding:15px;
+    margin:5px 0;
+    font-size:18px;
+}
+
+.main-btn {
+    height:80px;
+    font-size:22px;
+}
+
+.grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.box {
+    padding:20px;
+    color:white;
+    font-size:18px;
+    text-align:center;
+    border-radius:10px;
+}
+
+.total {
+    font-size:22px;
+    margin-top:10px;
+}
+
+input {
+    width:100%;
+    padding:12px;
+    font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+    <button class="main-btn" onclick="show('daily')">Daily Work</button>
+    <button class="main-btn" onclick="show('customers')">Customers</button>
+    <button class="main-btn" onclick="show('summary')">Summary</button>
+</div>
+
+<!-- DAILY -->
+<div id="daily" class="screen">
+    <button onclick="show('home')">⬅ Back</button>
+
+    <div class="grid">
+        <div class="box" style="background:red" onclick="addWork('blouse',250)">Blouse</div>
+        <div class="box" style="background:purple" onclick="addWork('model',300)">Model</div>
+        <div class="box" style="background:green" onclick="addWork('saree',50)">Saree</div>
+        <div class="box" style="background:blue" onclick="addWork('frock',500)">Frock</div>
+        <div class="box" style="background:orange" onclick="addWork('nighty',30)">Nighty</div>
+    </div>
+
+    <div class="total">Today Total: ₹<span id="todayTotal">0</span></div>
+</div>
+
+<!-- CUSTOMERS -->
+<div id="customers" class="screen">
+    <button onclick="show('home')">⬅ Back</button>
+
+    <input id="phone" placeholder="Enter Phone" oninput="searchCustomer()">
+
+    <div id="custBox"></div>
+</div>
+
+<!-- SUMMARY -->
+<div id="summary" class="screen">
+    <button onclick="show('home')">⬅ Back</button>
+
+    <button onclick="loadSummary('today')">Today</button>
+    <button onclick="loadSummary('yesterday')">Yesterday</button>
+    <button onclick="loadSummary('month')">This Month</button>
+
+    <div id="summaryData"></div>
+</div>
+
+<script>
+function show(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(id==='daily') renderToday();
+}
+
+function getDate(offset=0){
+    let d=new Date();
+    d.setDate(d.getDate()+offset);
+    return d.toISOString().slice(0,10);
+}
+
+function getData(){
+    return JSON.parse(localStorage.getItem("work")||"[]");
+}
+
+function saveData(d){
+    localStorage.setItem("work",JSON.stringify(d));
+}
+
+function addWork(type,price){
+    let d=getData();
+    let today=getDate();
+
+    let item=d.find(x=>x.type==type && x.date==today);
+    if(item){
+        item.qty++;
+        item.total+=price;
+    }else{
+        d.push({type,qty:1,total:price,date:today});
+    }
+
+    saveData(d);
+    renderToday();
+}
+
+function renderToday(){
+    let d=getData();
+    let today=getDate();
+    let total=0;
+
+    d.filter(x=>x.date==today).forEach(x=>{
+        total+=x.total;
+    });
+
+    document.getElementById("todayTotal").innerText=total;
+}
+
+/* CUSTOMERS */
+function getCust(){
+    return JSON.parse(localStorage.getItem("cust")||"{}");
+}
+function saveCust(c){
+    localStorage.setItem("cust",JSON.stringify(c));
+}
+
+function searchCustomer(){
+    let phone=document.getElementById("phone").value;
+    let box=document.getElementById("custBox");
+
+    if(phone.length!==10){
+        box.innerHTML="";
+        return;
+    }
+
+    let c=getCust();
+    if(!c[phone]) c[phone]={pending:0};
+
+    let data=c[phone];
+
+    box.innerHTML=`
+        <h3>Pending: ₹${data.pending}</h3>
+        <button onclick="updateAmt(1)">+ Add</button>
+        <button onclick="updateAmt(-1)">- Remove</button>
+    `;
+}
+
+function updateAmt(type){
+    let phone=document.getElementById("phone").value;
+    let amt=prompt("Enter amount:");
+    if(!amt) return;
+
+    let c=getCust();
+    if(!c[phone]) c[phone]={pending:0};
+
+    c[phone].pending += type*parseInt(amt);
+    if(c[phone].pending<0) c[phone].pending=0;
+
+    saveCust(c);
+    searchCustomer();
+}
+
+/* SUMMARY */
+function loadSummary(type){
+    let d=getData();
+    let total=0;
+
+    let today=getDate();
+    let yesterday=getDate(-1);
+
+    if(type==='today'){
+        d=d.filter(x=>x.date==today);
+    }else if(type==='yesterday'){
+        d=d.filter(x=>x.date==yesterday);
+    }else{
+        let m=new Date().getMonth();
+        d=d.filter(x=>new Date(x.date).getMonth()==m);
+    }
+
+    d.forEach(x=>total+=x.total);
+
+    document.getElementById("summaryData").innerHTML=
+        `<h2>Total: ₹${total}</h2>`;
+}
+</script>
+
+</body>
+</html>
