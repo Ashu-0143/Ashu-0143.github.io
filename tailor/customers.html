@@ -3,30 +3,85 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Customers</title>
-<link rel="stylesheet" href="style.css">
 
 <style>
-.entry { padding:8px; margin:5px 0; border-radius:8px; }
-.add { background:#ffdddd; }
-.pay { background:#ddffdd; }
+body {
+    font-family: Arial;
+    background:#f4f6f9;
+    padding:15px;
+}
+
+input {
+    width:100%;
+    padding:14px;
+    font-size:18px;
+    margin:8px 0;
+    border-radius:10px;
+    border:1px solid #ccc;
+}
+
+button {
+    width:100%;
+    padding:14px;
+    font-size:18px;
+    margin:6px 0;
+    border:none;
+    border-radius:12px;
+}
+
+.searchBtn {
+    background:#007bff;
+    color:white;
+    font-size:20px;
+}
+
+.addBtn {
+    background:#28a745;
+    color:white;
+}
+
+.removeBtn {
+    background:#dc3545;
+    color:white;
+}
+
+.entry {
+    padding:10px;
+    margin:6px 0;
+    border-radius:10px;
+    font-size:18px;
+}
+
+.add {
+    background:#d4edda;
+    color:#155724;
+}
+
+.remove {
+    background:#f8d7da;
+    color:#721c24;
+}
 </style>
 </head>
 
 <body>
 
-<button onclick="go('index.html')">⬅ Back</button>
-
 <h2>Customers</h2>
 
-<input id="phone" placeholder="Enter Phone" oninput="loadCustomer()">
+<input id="search" placeholder="Enter Phone or Name" 
+       oninput="this.value=this.value.replace(/[^0-9a-zA-Z]/g,'')">
+
+<button class="searchBtn" onclick="loadCustomer()">🔍 Search</button>
+
 <div id="custArea"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, getDocs, collection } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
+  apiKey: "YOUR_KEY",
   authDomain: "ashu-0143.firebaseapp.com",
   projectId: "ashu-0143"
 };
@@ -34,8 +89,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-window.go = p => location.href=p;
-
+// local storage
 function getLocal(){
     return JSON.parse(localStorage.getItem("customers")||"{}");
 }
@@ -43,69 +97,83 @@ function saveLocal(d){
     localStorage.setItem("customers",JSON.stringify(d));
 }
 
+// 🔍 SEARCH CUSTOMER
 window.loadCustomer = async function(){
-    let phone = document.getElementById("phone").value;
-
-    if(phone.length!==10){
-        document.getElementById("custArea").innerHTML="";
-        return;
-    }
+    let val = document.getElementById("search").value.trim();
+    if(!val) return;
 
     let local = getLocal();
+    let phone = val;
     let data = local[phone];
 
-    if(!data){
-        let snap = await getDoc(doc(db,"customers",phone));
+    // search by name if not number
+    if(!data && isNaN(val)){
+        let all = Object.values(local);
+        let found = all.find(c => c.name && c.name.toLowerCase()===val.toLowerCase());
+        if(found){
+            data = found;
+            phone = Object.keys(local).find(k=>local[k]===found);
+        }
+    }
+
+    // firebase fallback
+    if(!data && !isNaN(val)){
+        let snap = await getDoc(doc(db,"customers",val));
         if(snap.exists()) data = snap.data();
     }
 
+    // new customer
     if(!data){
-        let name = prompt("Name?");
-        data = { name, history: [] };
-    }
+        let name = prompt("Enter Name");
+        if(!name) return;
 
-    local[phone]=data;
-    saveLocal(local);
-    await setDoc(doc(db,"customers",phone),data);
+        data = { name, history: [] };
+        phone = val;
+
+        local[phone]=data;
+        saveLocal(local);
+        await setDoc(doc(db,"customers",phone),data);
+    }
 
     render(phone,data);
 }
+
+// 🧾 RENDER
 function render(phone,data){
     let total=0, html="";
 
     data.history.forEach(h=>{
         total+=h.amount;
         html+=`
-        <div class="entry ${h.amount>0?'add':'pay'}">
-            ${h.amount>0?'+':'-'}₹${Math.abs(h.amount)} 
-            <br><small>${h.note||''} | ${h.date||''}</small>
+        <div class="entry ${h.amount>0?'add':'remove'}">
+            ${h.amount>0?'+':'-'}₹${Math.abs(h.amount)}
         </div>`;
     });
 
-    custArea.innerHTML=`
+    document.getElementById("custArea").innerHTML=`
         <h3>${data.name}</h3>
         <h2>Total: ₹${total}</h2>
 
         ${html}
 
-        <button onclick="add('${phone}',1)">➕ Add Work</button>
-        <button onclick="add('${phone}',-1)">💰 Payment</button>
+        <input id="amount" placeholder="Enter Amount" 
+               oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+
+        <button class="addBtn" onclick="update('${phone}',1)">➕ Add</button>
+        <button class="removeBtn" onclick="update('${phone}',-1)">➖ Remove</button>
     `;
 }
 
-window.add = async function(phone,type){
-    let amt = parseInt(prompt("Amount?"));
-    let note = prompt("Note (blouse/frock/etc)?");
-
+// ➕➖ UPDATE
+window.update = async function(phone,type){
+    let amt = parseInt(document.getElementById("amount").value);
     if(!amt) return;
 
-    let local=getLocal();
-    let d=local[phone];
+    let local = getLocal();
+    let d = local[phone];
 
     d.history.push({
-        amount:type*amt,
-        note,
-        date:new Date().toLocaleDateString()
+        amount: type * amt
     });
 
     saveLocal(local);
