@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#007bff">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Home</title>
 <link rel="stylesheet" href="style.css">
@@ -15,5 +17,10 @@
 <button class="main-btn" onclick="go('summary.html')">Summary</button>
 
 <script src="script.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
 </body>
 </html>
