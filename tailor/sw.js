@@ -1,9 +1,13 @@
-const CACHE_NAME = "earnings-app-v1";
+const CACHE_NAME = "tailor-app-v1";
 
 const urlsToCache = [
-  "/index.html",
-  "/summary.html",
-  "/manifest.json"
+  "/tailor/",
+  "/tailor/index.html",
+  "/tailor/home.html",
+  "/tailor/daily.html",
+  "/tailor/customers.html",
+  "/tailor/summary.html",
+  "/tailor/manifest.json"
 ];
 
 self.addEventListener("install", event => {
