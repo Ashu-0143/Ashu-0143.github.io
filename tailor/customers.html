@@ -6,22 +6,9 @@
 <link rel="stylesheet" href="style.css">
 
 <style>
-.history {
-    background:white;
-    padding:10px;
-    margin-top:10px;
-    border-radius:10px;
-    font-size:18px;
-    line-height:1.6;
-}
-
-.plus { color:red; }
-.minus { color:green; }
-
-.total {
-    font-size:22px;
-    margin-top:10px;
-}
+.entry { padding:8px; margin:5px 0; border-radius:8px; }
+.add { background:#ffdddd; }
+.pay { background:#ddffdd; }
 </style>
 </head>
 
@@ -40,7 +27,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/fireba
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
+  apiKey: "YOUR_KEY",
   authDomain: "ashu-0143.firebaseapp.com",
   projectId: "ashu-0143"
 };
@@ -48,93 +35,81 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-window.go = function(p){ window.location.href=p; }
+window.go = p => location.href=p;
 
 function getLocal(){
     return JSON.parse(localStorage.getItem("customers")||"{}");
 }
-function saveLocal(c){
-    localStorage.setItem("customers",JSON.stringify(c));
+function saveLocal(d){
+    localStorage.setItem("customers",JSON.stringify(d));
 }
 
 window.loadCustomer = async function(){
-    let phone = document.getElementById("phone").value;
-    let area = document.getElementById("custArea");
-
-    if(phone.length !== 10){
-        area.innerHTML="";
-        return;
-    }
+    let phone = phoneInput.value;
+    if(phone.length!==10) return custArea.innerHTML="";
 
     let local = getLocal();
-
-    // Try local first
     let data = local[phone];
 
-    // If not found, check Firebase
     if(!data){
-        let ref = doc(db,"customers",phone);
-        let snap = await getDoc(ref);
-        if(snap.exists()){
-            data = snap.data();
-            local[phone] = data;
-            saveLocal(local);
-        }
+        let snap = await getDoc(doc(db,"customers",phone));
+        if(snap.exists()) data = snap.data();
     }
 
-    // If still not found → new customer
     if(!data){
-        let name = prompt("Enter Name:");
+        let name = prompt("Name?");
         data = { name, history: [] };
-        local[phone] = data;
-        saveLocal(local);
-
-        await setDoc(doc(db,"customers",phone),data);
     }
 
-    renderCustomer(phone, data);
+    local[phone]=data;
+    saveLocal(local);
+    await setDoc(doc(db,"customers",phone),data);
+
+    render(phone,data);
 }
 
-function renderCustomer(phone, data){
-    let total = 0;
-    let historyHTML = "";
+function render(phone,data){
+    let total=0, html="";
 
     data.history.forEach(h=>{
-        total += h.amount;
-        historyHTML += `<div class="${h.amount>0?'plus':'minus'}">
-            ${h.amount>0?'+':''}${h.amount}
+        total+=h.amount;
+        html+=`
+        <div class="entry ${h.amount>0?'add':'pay'}">
+            ${h.amount>0?'+':'-'}₹${Math.abs(h.amount)} 
+            <br><small>${h.note||''} | ${h.date||''}</small>
         </div>`;
     });
 
-    document.getElementById("custArea").innerHTML = `
+    custArea.innerHTML=`
         <h3>${data.name}</h3>
+        <h2>Total: ₹${total}</h2>
 
-        <div class="history">
-            ${historyHTML}
-            <hr>
-            <b>Total: ₹${total}</b>
-            <hr>
-        </div>
+        ${html}
 
-        <button onclick="addAmt('${phone}',1)">➕ Add Work</button>
-        <button onclick="addAmt('${phone}',-1)">💰 Payment</button>
+        <button onclick="add('${phone}',1)">➕ Add Work</button>
+        <button onclick="add('${phone}',-1)">💰 Payment</button>
     `;
 }
 
-window.addAmt = async function(phone,type){
-    let amt = parseInt(prompt("Enter amount:"));
+window.add = async function(phone,type){
+    let amt = parseInt(prompt("Amount?"));
+    let note = prompt("Note (blouse/frock/etc)?");
+
     if(!amt) return;
 
-    let local = getLocal();
-    let data = local[phone];
+    let local=getLocal();
+    let d=local[phone];
 
-    data.history.push({ amount: type * amt });
+    d.history.push({
+        amount:type*amt,
+        note,
+        date:new Date().toLocaleDateString()
+    });
 
     saveLocal(local);
+    await setDoc(doc(db,"customers",phone),d);
 
-    await setDoc(doc(db,"customers",phone),data);
-
-    renderCustomer(phone,data);
+    render(phone,d);
 }
 </script>
 
