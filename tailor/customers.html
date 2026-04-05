@@ -19,7 +19,6 @@
 <h2>Customers</h2>
 
 <input id="phone" placeholder="Enter Phone" oninput="loadCustomer()">
-
 <div id="custArea"></div>
 
 <script type="module">
@@ -27,7 +26,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/fireba
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_KEY",
+  apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
   authDomain: "ashu-0143.firebaseapp.com",
   projectId: "ashu-0143"
 };
@@ -45,8 +44,12 @@ function saveLocal(d){
 }
 
 window.loadCustomer = async function(){
-    let phone = phoneInput.value;
-    if(phone.length!==10) return custArea.innerHTML="";
+    let phone = document.getElementById("phone").value;
+
+    if(phone.length!==10){
+        document.getElementById("custArea").innerHTML="";
+        return;
+    }
 
     let local = getLocal();
     let data = local[phone];
@@ -67,7 +70,6 @@ window.loadCustomer = async function(){
 
     render(phone,data);
 }
-
 function render(phone,data){
     let total=0, html="";
 
