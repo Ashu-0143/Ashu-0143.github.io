@@ -4,8 +4,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Summary</title>
 
-<link rel="stylesheet" href="summary.css">
-
 <style>
 body {
     font-family: Arial;
@@ -13,11 +11,9 @@ body {
     padding:15px;
 }
 
-h2 {
-    text-align:center;
-}
+h2 { text-align:center; }
 
-/* TOP BUTTONS */
+/* FILTER BUTTONS */
 .filters {
     display:flex;
     gap:10px;
@@ -29,12 +25,12 @@ h2 {
     font-size:16px;
     border:none;
     border-radius:10px;
+    color:white;
 }
 
-/* COLORS */
-.today { background:#007bff; color:white; }
-.yest { background:#6c757d; color:white; }
-.month { background:#28a745; color:white; }
+.today { background:#007bff; }
+.yest { background:#6c757d; }
+.month { background:#28a745; }
 
 /* TOTAL CARD */
 .totalCard {
@@ -47,29 +43,28 @@ h2 {
     font-size:32px;
 }
 
-/* BAR CHART */
-.barWrap {
-    margin-top:20px;
-}
+/* BAR */
+.barWrap { margin-top:20px; }
 
-.barRow {
-    margin:10px 0;
-}
-
-.barLabel {
-    font-size:14px;
-}
+.barRow { margin:12px 0; }
 
 .bar {
-    height:20px;
+    height:28px;
     background:#ddd;
     border-radius:10px;
     overflow:hidden;
+    position:relative;
 }
 
 .fill {
     height:100%;
-    background:#28a745;
+    background:linear-gradient(90deg,#28a745,#00c851);
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    padding-right:8px;
+    color:white;
+    font-weight:bold;
 }
 
 /* BACK */
@@ -106,7 +101,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/fireba
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
+  apiKey: "YOUR_KEY",
   authDomain: "ashu-0143.firebaseapp.com",
   projectId: "ashu-0143"
 };
@@ -116,57 +111,86 @@ const db = getFirestore(app);
 
 window.goBack = ()=> location.href="index.html";
 
-// 📅 Helpers
+// 🔊 SPEAK
+function speak(text){
+    let msg = new SpeechSynthesisUtterance(text);
+    msg.lang = "en-IN";
+    speechSynthesis.speak(msg);
+}
+
+// 📅 helpers
+function formatDate(date){
+    return new Date(date).toLocaleDateString('en-IN', {
+        day:'numeric',
+        month:'short'
+    });
+}
+
 function getDate(offset=0){
     let d = new Date();
     d.setDate(d.getDate()+offset);
     return d.toISOString().split("T")[0];
 }
 
-// 📊 LOAD DATA
+// 📊 LOAD
 window.loadData = async function(type){
     let snap = await getDocs(collection(db,"daily"));
+
+    let dataMap = {};
+
+    snap.forEach(doc=>{
+        let d = doc.data();
+        dataMap[d.date] = d.total || 0;
+    });
 
     let today = getDate();
     let yesterday = getDate(-1);
     let month = new Date().getMonth();
 
-    let total = 0;
     let days = [];
 
-    snap.forEach(doc=>{
-        let d = doc.data();
+    if(type==='today'){
+        days = [{date:today, total:dataMap[today]||0}];
+    }
+    else if(type==='yesterday'){
+        days = [{date:yesterday, total:dataMap[yesterday]||0}];
+    }
+    else {
+        // FULL MONTH (no missing)
+        let d = new Date();
+        let year = d.getFullYear();
+        let m = d.getMonth();
 
-        if(type==='today' && d.date!==today) return;
-        if(type==='yesterday' && d.date!==yesterday) return;
-        if(type==='month'){
-            if(new Date(d.date).getMonth()!==month) return;
+        let lastDay = new Date(year, m+1, 0).getDate();
+
+        for(let i=1;i<=lastDay;i++){
+            let date = new Date(year,m,i).toISOString().split("T")[0];
+            days.push({
+                date,
+                total: dataMap[date] || 0
+            });
         }
-
-        total += d.total || 0;
-
-        days.push({
-            date: d.date,
-            total: d.total
-        });
-    });
+    }
 
     // TOTAL
+    let total = days.reduce((a,b)=>a+b.total,0);
     document.getElementById("total").innerText = "₹" + total;
 
-    // BARS
-    let max = Math.max(...days.map(d=>d.total), 1);
+    // MAX
+    let max = Math.max(...days.map(d=>d.total),1);
 
+    // BARS
     let html = "";
 
     days.forEach(d=>{
         let width = (d.total / max) * 100;
 
         html += `
-        <div class="barRow">
-            <div class="barLabel">${d.date} - ₹${d.total}</div>
+        <div class="barRow" onclick="speak('${formatDate(d.date)} - ${d.total} rupees')">
             <div class="bar">
-                <div class="fill" style="width:${width}%"></div>
+                <div class="fill" style="width:${width}%">
+                    ${d.total > 0 ? '₹'+d.total : ''}
+                </div>
             </div>
         </div>`;
     });
@@ -174,7 +198,7 @@ window.loadData = async function(type){
     document.getElementById("bars").innerHTML = html;
 }
 
-// default load
+// default
 loadData('today');
 </script>
 
