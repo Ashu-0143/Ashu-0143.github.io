@@ -17,6 +17,19 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+window.onload = function() {
+    const images = [
+        'url(images/a.jpeg)',
+        'url(images/b.jpeg)',
+        'url(images/c.jpeg)',
+        'url(images/d.jpeg)'
+    ];
+    const randomImg = images[Math.floor(Math.random() * images.length)];
+    
+    const div = document.getElementById("chat-container");
+    div.style.backgroundImage = randomImg;
+    div.style.backgroundSize = "cover";
+};
 
 // ✅ YOUR CONFIG
 const firebaseConfig = {

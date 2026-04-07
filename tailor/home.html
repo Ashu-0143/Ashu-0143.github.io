@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Work App</title>
 
 <style>
-body { font-family: Arial; margin:0; background:#f2f2f2; }
+body { font-family: Arial; margin:0.1; background:#f2f2f2; }
 
 .screen { display:none; padding:15px; }
 .active { display:block; }
@@ -51,14 +51,12 @@ input {
 
 <body>
 
-<!-- HOME -->
 <div id="home" class="screen active">
     <button class="main-btn" onclick="show('daily')">Daily Work</button>
     <button class="main-btn" onclick="show('customers')">Customers</button>
     <button class="main-btn" onclick="show('summary')">Summary</button>
 </div>
 
-<!-- DAILY -->
 <div id="daily" class="screen">
     <button onclick="show('home')">⬅ Back</button>
 
@@ -73,7 +71,6 @@ input {
     <div class="total">Today Total: ₹<span id="todayTotal">0</span></div>
 </div>
 
-<!-- CUSTOMERS -->
 <div id="customers" class="screen">
     <button onclick="show('home')">⬅ Back</button>
 
@@ -82,7 +79,6 @@ input {
     <div id="custBox"></div>
 </div>
 
-<!-- SUMMARY -->
 <div id="summary" class="screen">
     <button onclick="show('home')">⬅ Back</button>
 
@@ -206,9 +202,9 @@ function loadSummary(type){
     d.forEach(x=>total+=x.total);
 
     document.getElementById("summaryData").innerHTML=
-        `<h2>Total: ₹${total}</h2>`;
+        `<h2>Total: ₹${total}</h2>` ;
 }
 </script>
 
 </body>
-</html>
+</html> -->
