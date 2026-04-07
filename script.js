@@ -45,18 +45,18 @@ window.login = function () {
 };
 window.onload = function () {
   const images = [
-    'url(gallery/1.jpg)',
-    'url(gallery/2.jpg)',
-    'url(gallery/4.jpg)',
-    'url(gallery/5.jpg)',
-    'url(gallery/3.jpg)',
-    'url(gallery/6.jpg)',
-    'url(gallery/7.jpg)',
-    'url(gallery/8.jpg)',
-    'url(gallery/9.jpg)',
-    'url(gallery/10.jpg)',
-     'url(gallery/11.jpg)',
-    'url(gallery/12.jpg)'
+    'url(gallery/1.jpeg)',
+    'url(gallery/2.jpeg)',
+    'url(gallery/4.jpeg)',
+    'url(gallery/5.jpeg)',
+    'url(gallery/3.jpeg)',
+    'url(gallery/6.jpeg)',
+    'url(gallery/7.jpeg)',
+    'url(gallery/8.jpeg)',
+    'url(gallery/9.jpeg)',
+    'url(gallery/10.jpeg)',
+     'url(gallery/11.jpeg)',
+    'url(gallery/12.jpeg)'
 
   ];
   const randomImg = images[Math.floor(Math.random() * images.length)];
