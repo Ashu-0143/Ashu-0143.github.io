@@ -240,7 +240,7 @@ iframe {
 }
 /* Chat container */
 #chat-container {
-  max-width: 600px;
+  max-width: 900px;
   margin: 30px auto;
   background: #111;
   border-radius: 12px;
@@ -250,7 +250,7 @@ iframe {
 
 /* Chat box */
 #chat-box {
-  height: 350px;
+  height: 600px;
   overflow-y: auto;
   background: #1a1a1a;
   border-radius: 10px;
