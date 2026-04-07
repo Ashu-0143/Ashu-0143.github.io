@@ -43,27 +43,27 @@ window.login = function () {
   const provider = new GoogleAuthProvider();
   signInWithPopup(auth, provider);
 };
-window.onload = function() {
-    const images = [
-        'url(gallery/1.jpg)',
-        'url(gallery/2.jpg)',
-        'url(gallery/4.jpg)',
-        'url(gallery/5.jpg)',
-        'url(gallery/3.jpg)',
-        'url(gallery/6.jpg)',
-        'url(gallery/7.jpg)',
-        'url(gallery/8.jpg)',
-        'url(gallery/9.jpg)',
-        'url(gallery/10.jpg)'
-        // 'url(gallery/11.jpg)',
-        // 'url(gallery/12.jpg)'
-        
-    ];
-    const randomImg = images[Math.floor(Math.random() * images.length)];
-    
-    const div = document.getElementById("chat-container");
-    div.style.backgroundImage = randomImg;
-    div.style.backgroundSize = "cover";
+window.onload = function () {
+  const images = [
+    'url(gallery/1.jpg)',
+    'url(gallery/2.jpg)',
+    'url(gallery/4.jpg)',
+    'url(gallery/5.jpg)',
+    'url(gallery/3.jpg)',
+    'url(gallery/6.jpg)',
+    'url(gallery/7.jpg)',
+    'url(gallery/8.jpg)',
+    'url(gallery/9.jpg)',
+    'url(gallery/10.jpg)',
+     'url(gallery/11.jpg)',
+    'url(gallery/12.jpg)'
+
+  ];
+  const randomImg = images[Math.floor(Math.random() * images.length)];
+
+  const div = document.getElementById("chat-container");
+  div.style.backgroundImage = randomImg;
+  div.style.backgroundSize = "cover";
 };
 
 // ✅ AUTH STATE
