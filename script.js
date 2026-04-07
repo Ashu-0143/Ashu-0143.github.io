@@ -52,7 +52,7 @@ window.onload = function() {
     ];
     const randomImg = images[Math.floor(Math.random() * images.length)];
     
-    const div = document.getElementById("chat-box");
+    const div = document.getElementById("chat-container");
     div.style.backgroundImage = randomImg;
     div.style.backgroundSize = "cover";
 };
