@@ -278,8 +278,10 @@ iframe {
 
 /* Your messages */
 #chat-box div[style*="right"] {
-  background: #0d6efd;
+  background-color: rgba(0,0,0,0.3);
   color: white;
+text-decoration: solid;
+  border-radius: 6px;
   align-self: flex-end;
 }
 
