@@ -17,19 +17,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-window.onload = function() {
-    const images = [
-        'url(images/a.jpeg)',
-        'url(images/b.jpeg)',
-        'url(images/c.jpeg)',
-        'url(images/d.jpeg)'
-    ];
-    const randomImg = images[Math.floor(Math.random() * images.length)];
-    
-    const div = document.getElementById("chat-container");
-    div.style.backgroundImage = randomImg;
-    div.style.backgroundSize = "cover";
-};
+
 
 // ✅ YOUR CONFIG
 const firebaseConfig = {
@@ -43,20 +31,31 @@ const firebaseConfig = {
 };
 
 
-// ✅ INIT
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 
-// ✅ LOGIN
 window.login = function () {
   if (auth.currentUser) return;
 
   const provider = new GoogleAuthProvider();
   signInWithPopup(auth, provider);
 };
-
+window.onload = function() {
+    const images = [
+        'url(images/a.jpeg)',
+        'url(images/b.jpeg)',
+        'url(images/c.jpeg)',
+        'url(images/d.jpeg)'
+    ];
+    const randomImg = images[Math.floor(Math.random() * images.length)];
+    
+    const div = document.getElementById("sub_chatBox");
+    div.style.backgroundImage = randomImg;
+    div.style.backgroundSize = "cover";
+};
 
 // ✅ AUTH STATE
 onAuthStateChanged(auth, (user) => {
