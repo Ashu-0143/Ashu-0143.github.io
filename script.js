@@ -45,10 +45,16 @@ window.login = function () {
 };
 window.onload = function() {
     const images = [
-        'url(gallery/a.jpeg)',
-        'url(gallery/b.jpeg)',
-        'url(gallery/c.jpeg)',
-        'url(gallery/d.jpeg)'
+        'url(gallery/1.jpeg)',
+        'url(gallery/2.jpeg)',
+        'url(gallery/3.jpeg)',
+        'url(gallery/4.jpeg)',
+        'url(gallery/5.jpeg)',
+        'url(gallery/6.jpeg)',
+        'url(gallery/7.jpeg)',
+        'url(gallery/8.jpeg)',
+        'url(gallery/9.jpeg)',
+        
     ];
     const randomImg = images[Math.floor(Math.random() * images.length)];
     
