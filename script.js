@@ -45,14 +45,14 @@ window.login = function () {
 };
 window.onload = function() {
     const images = [
-        'url(images/a.jpeg)',
-        'url(images/b.jpeg)',
-        'url(images/c.jpeg)',
-        'url(images/d.jpeg)'
+        'url(gallery/a.jpeg)',
+        'url(gallery/b.jpeg)',
+        'url(gallery/c.jpeg)',
+        'url(gallery/d.jpeg)'
     ];
     const randomImg = images[Math.floor(Math.random() * images.length)];
     
-    const div = document.getElementById("sub_chatBox");
+    const div = document.getElementById("chat-box");
     div.style.backgroundImage = randomImg;
     div.style.backgroundSize = "cover";
 };
