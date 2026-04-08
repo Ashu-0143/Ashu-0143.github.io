@@ -45,6 +45,7 @@ window.login = function () {
 };
 window.onload = function () {
   const images = [
+    'url(gallery/0.jpeg)',
     'url(gallery/1.jpeg)',
     'url(gallery/2.jpeg)',
     'url(gallery/4.jpeg)',
@@ -56,7 +57,15 @@ window.onload = function () {
     'url(gallery/9.jpeg)',
     'url(gallery/10.jpeg)',
      'url(gallery/11.jpeg)',
-    'url(gallery/12.jpeg)'
+    'url(gallery/12.jpeg)',
+    'url(gallery/13.jpeg)',
+    'url(gallery/14.jpeg)',
+    'url(gallery/15.jpeg)',
+    'url(gallery/16.jpeg)',
+    'url(gallery/17.jpeg)'
+    // 'url(gallery/18.jpeg)',
+    // 'url(gallery/19.jpeg)',
+
 
   ];
   const randomImg = images[Math.floor(Math.random() * images.length)];
@@ -71,7 +80,6 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     const chatContainer = document.getElementById("chat-container");
 
-    // Only run if chat exists (important for safety)
     if (chatContainer) {
       chatContainer.style.display = "block";
       loadMessages();
