@@ -238,7 +238,8 @@ iframe {
 .games2 a{
     text-decoration: none;
 }
-/* Chat container */
+/* Chatttttttttttttttttttttttttt*/
+/* Chat Section Start */
 #chat-container {
   max-width: 900px;
   margin: 30px auto;
@@ -246,69 +247,97 @@ iframe {
   border-radius: 12px;
   padding: 15px;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  display: none; /* Hidden until login */
 }
 
-/* Chat box */
 #chat-box {
   height: 600px;
   overflow-y: auto;
   background: #1a1a1a;
   border-radius: 10px;
-  padding: 10px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
-/* Message bubbles */
-#chat-box div {
-  max-width: 70%;
-  padding: 8px 12px;
-  border-radius: 10px;
+/* Base message bubble */
+.my-msg, .other-msg {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 12px;
   font-size: 14px;
   word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Other users */
-#chat-box div {
+/* Others' Messages (Left) */
+.other-msg {
   background: #2a2a2a;
   color: white;
   align-self: flex-start;
+  border-bottom-left-radius: 2px;
 }
 
-/* Your messages */
-#chat-box div[style*="right"] {
-  background-color: rgba(0,0,0,0.3);
+/* Your Messages (Right) */
+.my-msg {
+  background-color: rgba(255, 255, 255, 0.1);
   color: white;
-text-decoration: solid;
-  border-radius: 6px;
   align-self: flex-end;
+  border-bottom-right-radius: 2px;
+  text-align: right;
 }
 
-/* Input area */
+/* Name styling inside bubbles */
+.chat-name {
+  font-size: 11px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Color for other people's names */
+.other-msg .chat-name {
+  color: #00d4ff; /* Bright Blue */
+}
+
+/* Color for your own name */
+.my-msg .chat-name {
+  color: #00ff88; /* Neon Green */
+}
+
+/* The actual message text color */
+.chat-text {
+  color: #efefef;
+  line-height: 1.4;
+}
+
 #chat-container input {
+  width: calc(100% - 100px);
   border-radius: 8px;
-  border: none;
-  padding: 8px;
-  margin-right: 8px;
+  border: 1px solid #333;
+  padding: 10px;
+  margin-top: 10px;
+  background: #222;
+  color: white;
 }
 
-/* Send button */
 #chat-container button {
   border-radius: 8px;
-  padding: 8px 15px;
+  padding: 10px 20px;
+  background: #00ff88;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-/* Scrollbar */
-#chat-box::-webkit-scrollbar {
-  width: 6px;
-}
+#chat-box::-webkit-scrollbar { width: 6px; }
+#chat-box::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+/* Chat Section End */
 
-#chat-box::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 10px;
-}
-
+/* Chatttttttttttttttttttttttttt endsssssssssss*/
 @keyframes hoverStop {
      0% {
     transform: translateX(-10%);
