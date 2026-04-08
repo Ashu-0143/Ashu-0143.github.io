@@ -1,17 +1,12 @@
-const CACHE_NAME = "tailor-cache-v1";
+const CACHE_NAME = "ashu-site-v1";
 const urlsToCache = [
   "./index.html",
-  "./daily.html",
-  "./customers.html",
-  "./summary.html",
-  "./style.css",
+  "./global.css",
+  "./index.css",
   "./script.js",
-  "../global.css",
-  "./images/blouse.jpg",
-  "./images/frock.jpeg",
-  "./images/modelBlouse.jpeg",
-  "./images/nighty.jpeg",
-  "./images/saree.jpg"
+  "./about.html",
+  "./games.html",
+  "./friends.html"
 ];
 
 self.addEventListener("install", e => {

@@ -1,30 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <link rel="manifest" href="/tailor/manifest.json">
-<meta name="theme-color" content="#007bff">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Home</title>
-<link rel="stylesheet" href="style.css">
+  <!-- Separate Manifest for the Work App PWA -->
+   <link rel="shortcut icon" href="../favicons/tailor.ico" type="image/x-icon">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#007bff">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Work App - Dashboard</title>
+  
+  <style>
+    body { font-family: sans-serif; background: #8f8f8f; padding: 20px; text-align: center; }
+    h1 { color: #333; margin-bottom: 30px; }
+    
+    /* Big Dashboard Buttons */
+    .main-btn {
+        width: 100%;
+        max-width: 400px;
+        padding: 20px;
+        margin: 10px 0;
+        font-size: 20px;
+        font-weight: bold;
+        border: none;
+        border-radius: 15px;
+        cursor: pointer;
+        color: white;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .main-btn:active { transform: scale(0.98); }
+    
+    /* Distinct Colors for buttons */
+    .btn-daily { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .btn-cust { background: linear-gradient(135deg, #2af598, #009efd); }
+    .btn-summ { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    
+    .home-link { display: block; margin-top: 30px; color: #666; text-decoration: none; font-size: 14px; }
+  </style>
 </head>
 
 <body>
 
-<h1>Work App</h1>
+  <h1>Tailor Dashboard</h1>
 
-<button class="main-btn" onclick="go('daily.html')">Daily Work</button>
-<button class="main-btn" onclick="go('customers.html')">Customers</button>
-<button class="main-btn" onclick="go('summary.html')">Summary</button>
+  <button class="main-btn btn-daily" onclick="go('daily.html')">📋 Daily Work</button>
+  <button class="main-btn btn-cust" onclick="go('customers.html')">👥 Customers</button>
+  <button class="main-btn btn-summ" onclick="go('summary.html')">📊 Summary</button>
 
-<script src="script.js"></script>
+  <a href="../index.html" class="home-link">⬅ Back to Main Site (Chat)</a>
+
+  <script src="script.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log("SW registered"))
-      .catch(err => console.log("SW error", err));
+    navigator.serviceWorker.register('./sw.js') // Registers the SW inside /tailor/
+      .then(reg => console.log("Tailor PWA Registered", reg.scope))
+      .catch(err => console.log("Tailor PWA Error", err));
   });
 }
 </script>
+
 </body>
 </html>

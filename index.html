@@ -15,7 +15,6 @@
     <!-- ✅ YOUR SCRIPT -->
     <script type="module" src="script.js"></script>
 
-    <!-- Replace main.css with these -->
 <link rel="stylesheet" href="global.css">
 <link rel="stylesheet" href="index.css">
 
@@ -74,6 +73,12 @@
     <button id="guessButton" onclick="sendMessage()" class="btn">Send</button>
   </div>
 </div>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js')
+    .then(() => console.log("Ashu PWA Registered"));
+}
+</script>
 
 </body>
 </html>
