@@ -19,5 +19,13 @@ self.addEventListener("install", e => {
 });
 
 self.addEventListener("fetch", e => {
-  e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+  // 🛑 IGNORE FIREBASE REQUESTS - Let them go directly to the network
+  if (e.request.url.includes("://googleapis.com") || 
+      e.request.url.includes("firebase")) {
+    return;
+  }
+
+  e.respondWith(
+    caches.match(e.request).then(res => res || fetch(e.request))
+  );
 });
