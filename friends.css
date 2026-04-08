@@ -1,5 +1,6 @@
 /* Friends Page Specific Styles */
 .friends .friend {
+    margin: 10px 0;
     text-align: center;
 }
 
@@ -24,7 +25,7 @@ iframe {
 }
 
 .friend:hover iframe {
-    filter: blur(0px) brightness(1);
+    filter: blur(4px) brightness(0.8);
 }
 
 /* Custom Button Styling */
