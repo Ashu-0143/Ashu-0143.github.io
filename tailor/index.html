@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Separate Manifest for the Work App PWA -->
-   <link rel="shortcut icon" href="../favicons/tailor.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="../favicons/tailor.ico" type="image/x-icon">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#007bff">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +11,6 @@
     body { font-family: sans-serif; background: #8f8f8f; padding: 20px; text-align: center; }
     h1 { color: #333; margin-bottom: 30px; }
     
-    /* Big Dashboard Buttons */
     .main-btn {
         width: 100%;
         max-width: 400px;
@@ -29,12 +27,11 @@
     
     .main-btn:active { transform: scale(0.98); }
     
-    /* Distinct Colors for buttons */
     .btn-daily { background: linear-gradient(135deg, #667eea, #764ba2); }
     .btn-cust { background: linear-gradient(135deg, #2af598, #009efd); }
     .btn-summ { background: linear-gradient(135deg, #f093fb, #f5576c); }
     
-    .home-link { display: block; margin-top: 30px; color: #666; text-decoration: none; font-size: 14px; }
+    .home-link { display: block; margin-top: 30px; color: #333; text-decoration: none; font-size: 14px; font-weight: bold; }
   </style>
 </head>
 
@@ -48,16 +45,40 @@
 
   <a href="../index.html" class="home-link">⬅ Back to Main Site (Chat)</a>
 
+  <!-- ✅ Added Firebase Auth Check -->
+  <script type="module">
+    import { initializeApp } from "https://gstatic.com";
+    import { getAuth, onAuthStateChanged } from "https://gstatic.com";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
+      authDomain: "://firebaseapp.com",
+      projectId: "ashu-0143"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Lock the dashboard to your UID only
+    onAuthStateChanged(auth, (user) => {
+      if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
+        console.log("Unauthorized access to dashboard.");
+        window.location.href = "../index.html";
+      }
+    });
+  </script>
+
   <script src="script.js"></script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js') // Registers the SW inside /tailor/
-      .then(reg => console.log("Tailor PWA Registered", reg.scope))
-      .catch(err => console.log("Tailor PWA Error", err));
-  });
-}
-</script>
+  <script>
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log("Tailor PWA Registered", reg.scope))
+          .catch(err => console.log("Tailor PWA Error", err));
+      });
+    }
+  </script>
 
 </body>
 </html>

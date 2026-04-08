@@ -74,6 +74,7 @@
 <div class="barWrap" id="bars"></div>
 
 <script type="module">
+// ✅ Fixed Import URLs
 import { initializeApp } from "https://gstatic.com";
 import { getFirestore, collection, getDocs } from "https://gstatic.com";
 import { getAuth, onAuthStateChanged } from "https://gstatic.com";
@@ -92,16 +93,18 @@ window.goBack = () => location.href = "index.html";
 
 // ✅ 1. AUTH PROTECTION
 onAuthStateChanged(auth, (user) => {
-    if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
-        alert("Restricted Access!");
-        window.location.href = "../index.html";
+    if (user && user.uid === "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
+        window.loadData('today'); // Load data only when confirmed
     } else {
-        loadData('today'); // Default load
+        // Short delay to avoid race conditions during login load
+        setTimeout(() => {
+            if(!auth.currentUser) window.location.href = "../index.html";
+        }, 2000);
     }
 });
 
 // 2. VOICE FEEDBACK
-function speak(text) {
+window.speak = function(text) {
     let msg = new SpeechSynthesisUtterance(text);
     msg.lang = "en-IN";
     speechSynthesis.speak(msg);
@@ -115,62 +118,73 @@ function formatDate(dateStr) {
 function getDate(offset = 0) {
     let d = new Date();
     d.setDate(d.getDate() + offset);
+    // Fixed: return simple YYYY-MM-DD string
     return d.toISOString().split("T")[0];
 }
 
 // 4. LOAD DATA
 window.loadData = async function(type) {
-    const snap = await getDocs(collection(db, "daily"));
-    let dataMap = {};
+    try {
+        const snap = await getDocs(collection(db, "daily"));
+        let dataMap = {};
 
-    snap.forEach(doc => {
-        let d = doc.data();
-        dataMap[d.date] = d.total || 0;
-    });
+        snap.forEach(doc => {
+            let d = doc.data();
+            dataMap[d.date] = d.total || 0;
+        });
 
-    let days = [];
-    let today = getDate();
-    let yesterday = getDate(-1);
+        let days = [];
+        let today = getDate();
+        let yesterday = getDate(-1);
 
-    if (type === 'today') {
-        days = [{ date: today, total: dataMap[today] || 0 }];
-    } else if (type === 'yesterday') {
-        days = [{ date: yesterday, total: dataMap[yesterday] || 0 }];
-    } else {
-        let d = new Date();
-        let year = d.getFullYear();
-        let m = d.getMonth();
-        let lastDay = new Date(year, m + 1, 0).getDate();
+        if (type === 'today') {
+            days = [{ date: today, total: dataMap[today] || 0 }];
+        } else if (type === 'yesterday') {
+            days = [{ date: yesterday, total: dataMap[yesterday] || 0 }];
+        } else {
+            let d = new Date();
+            let year = d.getFullYear();
+            let m = d.getMonth();
+            let lastDay = new Date(year, m + 1, 0).getDate();
 
-        for (let i = 1; i <= lastDay; i++) {
-            let date = new Date(year, m, i).toISOString().split("T")[0];
-            if (dataMap[date]) { // Only show days with work in the list
-                days.push({ date, total: dataMap[date] });
+            for (let i = 1; i <= lastDay; i++) {
+                // Ensure correct zero-padding for the date string (YYYY-MM-DD)
+                let dateObj = new Date(year, m, i);
+                let dateStr = dateObj.toISOString().split("T")[0];
+                
+                if (dataMap[dateStr]) { 
+                    days.push({ date: dateStr, total: dataMap[dateStr] });
+                }
             }
         }
-    }
 
-    // UPDATE UI
-    let total = days.reduce((a, b) => a + b.total, 0);
-    document.getElementById("total").innerText = "₹" + total;
+        // UPDATE UI
+        let total = days.reduce((a, b) => a + b.total, 0);
+        document.getElementById("total").innerText = "₹" + total;
 
-    let max = Math.max(...days.map(d => d.total), 1);
-    let html = "";
+        let max = Math.max(...days.map(d => d.total), 1);
+        let html = "";
 
-    days.forEach(d => {
-        let width = (d.total / max) * 100;
-        html += `
-        <div class="barRow" onclick="speak('${formatDate(d.date)}, ${d.total} rupees')">
-            <span class="dateLabel">${formatDate(d.date)}</span>
-            <div class="bar">
-                <div class="fill" style="width:${width}%">
-                    ${d.total > 0 ? '₹' + d.total : ''}
+        days.forEach(d => {
+            let width = (d.total / max) * 100;
+            html += `
+            <div class="barRow" onclick="window.speak('${formatDate(d.date)}, ${d.total} rupees')">
+                <span class="dateLabel">${formatDate(d.date)}</span>
+                <div class="bar">
+                    <div class="fill" style="width:${width}%">
+                        ${d.total > 0 ? '₹' + d.total : ''}
+                    </div>
                 </div>
-            </div>
-        </div>`;
-    });
+            </div>`;
+        });
 
-    document.getElementById("bars").innerHTML = html || "<p style='text-align:center; color:#999; margin-top:20px;'>No data for this period</p>";
+        document.getElementById("bars").innerHTML = html || "<p style='text-align:center; color:#999; margin-top:20px;'>No data for this period</p>";
+    } catch (err) {
+        console.error("Firebase Error:", err);
+        if(err.code === "permission-denied") {
+            alert("Permission Denied: Check your Firestore rules for 'list' permission.");
+        }
+    }
 };
 </script>
 

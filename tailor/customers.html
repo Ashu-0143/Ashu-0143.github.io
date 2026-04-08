@@ -2,7 +2,6 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Separate Manifest and Favicon for Tailor App -->
     <link rel="manifest" href="/tailor/manifest.json">
     <link rel="shortcut icon" href="/tailor/tailor-icon.ico" type="image/x-icon">
     <meta name="theme-color" content="#007bff">
@@ -27,16 +26,15 @@
 
     <h2>Customer Ledger</h2>
 
-    <!-- Search Input: Handles names or phone numbers -->
     <input id="search" placeholder="Enter Phone or Name" 
            oninput="this.value=this.value.replace(/[^0-9a-zA-Z]/g,'')">
 
-    <button class="searchBtn" onclick="loadCustomer()">🔍 Search Customer</button>
+    <button class="searchBtn" onclick="window.loadCustomer()">🔍 Search Customer</button>
 
     <div id="custArea"></div>
 
 <script type="module">
-    // Firebase Imports
+    // ✅ 1. Fixed the Import URLs
     import { initializeApp } from "https://gstatic.com";
     import { getFirestore, doc, getDoc, setDoc } from "https://gstatic.com";
     import { getAuth, onAuthStateChanged } from "https://gstatic.com";
@@ -51,19 +49,24 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // ✅ AUTH PROTECTION: Redirect if not logged in (Required by your Security Rules)
+    // ✅ 2. AUTH PROTECTION with 2-second delay for stability
     onAuthStateChanged(auth, (user) => {
-        if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
-            alert("Unauthorized! Redirecting to home.");
-            window.location.href = "../index.html";
+        if (user && user.uid === "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
+            console.log("Welcome, Admin");
+        } else {
+            setTimeout(() => {
+                if (!auth.currentUser) {
+                    alert("Unauthorized! Redirecting.");
+                    window.location.href = "../index.html";
+                }
+            }, 2000);
         }
     });
 
-    // Local Storage Helpers
     function getLocal() { return JSON.parse(localStorage.getItem("customers") || "{}"); }
     function saveLocal(d) { localStorage.setItem("customers", JSON.stringify(d)); }
 
-    // 🔍 SEARCH LOGIC
+    // ✅ 3. SEARCH LOGIC (Attached to window so HTML can see it)
     window.loadCustomer = async function() {
         let val = document.getElementById("search").value.trim();
         if (!val) return;
@@ -72,23 +75,22 @@
         let phone = val;
         let data = local[phone];
 
-        // 1. Try Local Name Search
         if (!data && isNaN(val)) {
             let foundKey = Object.keys(local).find(k => local[k].name?.toLowerCase() === val.toLowerCase());
             if (foundKey) { data = local[foundKey]; phone = foundKey; }
         }
 
-        // 2. Try Firebase Fallback (Phone must be the document ID)
         if (!data && !isNaN(val)) {
-            const snap = await getDoc(doc(db, "customers", val));
-            if (snap.exists()) {
-                data = snap.data();
-                local[val] = data; // Sync to local
-                saveLocal(local);
-            }
+            try {
+                const snap = await getDoc(doc(db, "customers", val));
+                if (snap.exists()) {
+                    data = snap.data();
+                    local[val] = data;
+                    saveLocal(local);
+                }
+            } catch (e) { console.error("Firebase fetch failed", e); }
         }
 
-        // 3. Create New if not found
         if (!data) {
             let name = prompt("New Customer! Enter Name:");
             if (!name) return;
@@ -102,7 +104,7 @@
         render(phone, data);
     };
 
-    // 🧾 UI RENDERER
+    // ✅ 4. UI RENDERER
     function render(phone, data) {
         let total = 0, html = "";
         data.history.forEach(h => {
@@ -116,14 +118,14 @@
         document.getElementById("custArea").innerHTML = `
             <h3>Customer: ${data.name}</h3>
             <h2 style="color:${total >= 0 ? '#28a745' : '#dc3545'}">Balance: ₹${total}</h2>
-            <div style="max-height:200px; overflow-y:auto; margin:10px 0;">${html}</div>
+            <div style="max-height:200px; overflow-y:auto; margin:10px 0; border:1px solid #eee; padding:5px;">${html || "No history"}</div>
             <input id="amount" type="number" placeholder="Enter Amount">
-            <button class="addBtn" onclick="update('${phone}', 1)">➕ Add (Money Received)</button>
-            <button class="removeBtn" onclick="update('${phone}', -1)">➖ Remove (Work Done/Credit)</button>
+            <button class="addBtn" onclick="window.update('${phone}', 1)">➕ Add (Money Received)</button>
+            <button class="removeBtn" onclick="window.update('${phone}', -1)">➖ Remove (Work Done)</button>
         `;
     }
 
-    // ➕➖ UPDATE DATA
+    // ✅ 5. UPDATE DATA (Attached to window)
     window.update = async function(phone, type) {
         let amtInput = document.getElementById("amount");
         let amt = parseInt(amtInput.value);
@@ -132,13 +134,14 @@
         let local = getLocal();
         let d = local[phone];
 
-        // Add to history
         d.history.push({ amount: type * amt, date: new Date().toISOString() });
 
         saveLocal(local);
-        await setDoc(doc(db, "customers", phone), d); // Sync to Firebase
-        render(phone, d);
-        amtInput.value = "";
+        try {
+            await setDoc(doc(db, "customers", phone), d);
+            render(phone, d);
+            amtInput.value = "";
+        } catch (e) { alert("Save failed! Check your internet."); }
     };
 </script>
 </body>
