@@ -1,0 +1,111 @@
+/* GAMES PAGE SPECIFIC STYLES */
+
+/* Section Headings */
+.gameHeadings {
+    padding: 20px 0;
+    text-align: center;
+    color: rgb(210, 219, 210);
+    margin-top: 20px;
+}
+
+/* Individual Game Cards */
+.grid .game {
+    background-color: rgba(25, 28, 31, 0.6);
+    border: 2px solid rgba(73, 70, 70, 0.5);
+    margin: 5px;
+    border-radius: 4px;
+    color: whitesmoke;
+    padding: 20px;
+    text-align: center;
+    font-size: 22px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* Hover effect for "Games I Made" (Green) */
+.games1 .game:hover {
+    background-color: rgba(54, 161, 102, 0.5);
+    border-color: rgb(54, 161, 102);
+    border-radius: 12px;
+}
+
+/* Hover effect for "Games I Play" (Red) */
+.games2 .game:hover {
+    background-color: rgba(241, 89, 89, 0.534);
+    border-color: rgb(241, 89, 89);
+    border-radius: 12px;
+}
+
+/* Number Guessing Game Center */
+.game1Center {
+    display: none; /* Controlled by games.js */
+    padding: 30px 0;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+.range {
+    color: rgb(247, 247, 247);
+    margin-bottom: 15px;
+}
+
+/* Inputs styling */
+.game1Center input {
+    border-radius: 5px;
+    display: inline-block;
+    width: 80px;
+    font-size: 18px;
+    padding: 8px;
+    border: 2px solid rgb(134, 134, 134);
+    background-color: transparent;
+    color: rgb(210, 219, 210);
+    text-align: center;
+    margin: 5px;
+}
+
+.inputPack:hover, .game1Center input:focus {
+    border-color: rgb(53, 252, 63);
+    outline: none;
+}
+
+/* Guess Button */
+#guessButton {
+    border-radius: 10px;
+    padding: 10px 20px;
+    background-color: transparent;
+    border: 3px solid rgba(53, 252, 63, 0.5);
+    color: bisque;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#guessButton:hover {
+    border-color: rgb(53, 252, 63);
+    color: rgb(53, 252, 63);
+    background: rgba(53, 252, 63, 0.1);
+}
+
+.submitPack {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+#guessNumber {
+    width: 120px !important;
+}
+
+.resultNum {
+    color: rgb(155, 216, 63);
+    padding-top: 15px;
+    min-height: 40px;
+}
+
+.games2 a {
+    text-decoration: none;
+}
