@@ -1,67 +1,79 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="manifest" href="/tailor/manifest.json">
-<meta name="theme-color" content="#007bff">
+<meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ✅ FIXED PATH -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#007bff">
+
 <title>Work App - Summary</title>
 
 <style>
-    body { font-family: Arial, sans-serif; background:#f4f6f9; padding:15px; }
-    h2 { text-align:center; color: #333; }
+body { font-family: Arial; background:#f4f6f9; padding:15px; }
+h2 { text-align:center; }
 
-    /* FILTER BUTTONS */
-    .filters { display:flex; gap:10px; margin-bottom: 15px; }
-    .filters button { flex:1; padding:12px; font-size:16px; border:none; border-radius:10px; color:white; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    .filters button:active { transform: scale(0.95); }
-    .today { background:#007bff; }
-    .yest { background:#6c757d; }
-    .month { background:#28a745; }
+.filters { display:flex; gap:10px; margin-bottom:15px; }
+.filters button {
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    color:white;
+    font-weight:bold;
+}
 
-    /* TOTAL CARD */
-    .totalCard {
-        background: linear-gradient(135deg,#4facfe,#00f2fe);
-        color:white;
-        padding:25px;
-        border-radius:15px;
-        text-align:center;
-        font-size:36px;
-        font-weight: bold;
-        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
-    }
+.today { background:#007bff; }
+.yest { background:#6c757d; }
+.month { background:#28a745; }
 
-    /* BAR CHART */
-    .barWrap { margin-top:20px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
-    .barRow { margin:10px 0; cursor: pointer; }
-    .dateLabel { font-size: 12px; color: #666; margin-bottom: 2px; display: block; }
-    .bar { height:28px; background:#e9ecef; border-radius:10px; overflow:hidden; position:relative; }
-    .fill {
-        height:100%;
-        background: linear-gradient(90deg,#28a745,#00c851);
-        display:flex;
-        align-items:center;
-        justify-content:flex-end;
-        padding-right:10px;
-        color:white;
-        font-weight:bold;
-        font-size: 13px;
-        transition: width 0.5s ease-in-out;
-    }
+.totalCard {
+    background:#4facfe;
+    color:white;
+    padding:25px;
+    border-radius:15px;
+    text-align:center;
+    font-size:32px;
+}
 
-    /* BACK BUTTON */
-    .back { background:#444; color:white; padding:12px; width:100%; border:none; border-radius:10px; margin-bottom:15px; font-weight: bold; }
-    
-    /* Custom Scrollbar */
-    .barWrap::-webkit-scrollbar { width: 5px; }
-    .barWrap::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+.barWrap { margin-top:20px; }
+
+.barRow { margin:10px 0; cursor:pointer; }
+
+.bar {
+    height:25px;
+    background:#ddd;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.fill {
+    height:100%;
+    background:#28a745;
+    color:white;
+    text-align:right;
+    padding-right:10px;
+}
+
+.back {
+    background:#444;
+    color:white;
+    padding:12px;
+    width:100%;
+    border:none;
+    border-radius:10px;
+    margin-bottom:15px;
+}
 </style>
 </head>
 
 <body>
 
-<button class="back" onclick="goBack()">⬅ Back to Dashboard</button>
+<button class="back" onclick="goBack()">⬅ Back</button>
 
-<h2>📊 Earning Summary</h2>
+<h2>📊 Summary</h2>
 
 <div class="filters">
     <button class="today" onclick="loadData('today')">Today</button>
@@ -73,11 +85,17 @@
 
 <div class="barWrap" id="bars"></div>
 
+<!-- ✅ FIXED FIREBASE -->
 <script type="module">
-// ✅ Fixed Import URLs
-import { initializeApp } from "https://gstatic.com";
-import { getFirestore, collection, getDocs } from "https://gstatic.com";
-import { getAuth, onAuthStateChanged } from "https://gstatic.com";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getFirestore, collection, getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+  getAuth, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
@@ -91,100 +109,93 @@ const auth = getAuth(app);
 
 window.goBack = () => location.href = "index.html";
 
-// ✅ 1. AUTH PROTECTION
+// ✅ AUTH
 onAuthStateChanged(auth, (user) => {
-    if (user && user.uid === "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
-        window.loadData('today'); // Load data only when confirmed
-    } else {
-        // Short delay to avoid race conditions during login load
-        setTimeout(() => {
-            if(!auth.currentUser) window.location.href = "../index.html";
-        }, 2000);
-    }
+  if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
+    window.location.href = "index.html";
+  } else {
+    loadData("today");
+  }
 });
 
-// 2. VOICE FEEDBACK
+// 🔊 VOICE FIX (IMPORTANT)
 window.speak = function(text) {
-    let msg = new SpeechSynthesisUtterance(text);
-    msg.lang = "en-IN";
-    speechSynthesis.speak(msg);
+  // must be triggered after user interaction
+  if (!window.speechSynthesis) return;
+
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = "en-IN";
+
+  speechSynthesis.cancel(); // stop previous
+  speechSynthesis.speak(msg);
+};
+
+// 📅 HELPERS
+function getDate(offset=0){
+  let d = new Date();
+  d.setDate(d.getDate()+offset);
+  return d.toISOString().split("T")[0];
 }
 
-// 3. HELPERS
-function formatDate(dateStr) {
-    return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+function formatDate(d){
+  return new Date(d).toLocaleDateString("en-IN",{day:"numeric",month:"short"});
 }
 
-function getDate(offset = 0) {
-    let d = new Date();
-    d.setDate(d.getDate() + offset);
-    // Fixed: return simple YYYY-MM-DD string
-    return d.toISOString().split("T")[0];
-}
+// 📊 LOAD DATA
+window.loadData = async function(type){
+  const snap = await getDocs(collection(db,"daily"));
 
-// 4. LOAD DATA
-window.loadData = async function(type) {
-    try {
-        const snap = await getDocs(collection(db, "daily"));
-        let dataMap = {};
+  let map = {};
+  snap.forEach(doc=>{
+    let d = doc.data();
+    map[d.date] = d.total || 0;
+  });
 
-        snap.forEach(doc => {
-            let d = doc.data();
-            dataMap[d.date] = d.total || 0;
-        });
+  let days=[];
+  let today=getDate();
+  let yest=getDate(-1);
 
-        let days = [];
-        let today = getDate();
-        let yesterday = getDate(-1);
+  if(type==="today"){
+    days=[{date:today,total:map[today]||0}];
+  }
+  else if(type==="yesterday"){
+    days=[{date:yest,total:map[yest]||0}];
+  }
+  else{
+    let now=new Date();
+    let y=now.getFullYear();
+    let m=now.getMonth();
+    let last=new Date(y,m+1,0).getDate();
 
-        if (type === 'today') {
-            days = [{ date: today, total: dataMap[today] || 0 }];
-        } else if (type === 'yesterday') {
-            days = [{ date: yesterday, total: dataMap[yesterday] || 0 }];
-        } else {
-            let d = new Date();
-            let year = d.getFullYear();
-            let m = d.getMonth();
-            let lastDay = new Date(year, m + 1, 0).getDate();
-
-            for (let i = 1; i <= lastDay; i++) {
-                // Ensure correct zero-padding for the date string (YYYY-MM-DD)
-                let dateObj = new Date(year, m, i);
-                let dateStr = dateObj.toISOString().split("T")[0];
-                
-                if (dataMap[dateStr]) { 
-                    days.push({ date: dateStr, total: dataMap[dateStr] });
-                }
-            }
-        }
-
-        // UPDATE UI
-        let total = days.reduce((a, b) => a + b.total, 0);
-        document.getElementById("total").innerText = "₹" + total;
-
-        let max = Math.max(...days.map(d => d.total), 1);
-        let html = "";
-
-        days.forEach(d => {
-            let width = (d.total / max) * 100;
-            html += `
-            <div class="barRow" onclick="window.speak('${formatDate(d.date)}, ${d.total} rupees')">
-                <span class="dateLabel">${formatDate(d.date)}</span>
-                <div class="bar">
-                    <div class="fill" style="width:${width}%">
-                        ${d.total > 0 ? '₹' + d.total : ''}
-                    </div>
-                </div>
-            </div>`;
-        });
-
-        document.getElementById("bars").innerHTML = html || "<p style='text-align:center; color:#999; margin-top:20px;'>No data for this period</p>";
-    } catch (err) {
-        console.error("Firebase Error:", err);
-        if(err.code === "permission-denied") {
-            alert("Permission Denied: Check your Firestore rules for 'list' permission.");
-        }
+    for(let i=1;i<=last;i++){
+      let d=new Date(y,m,i).toISOString().split("T")[0];
+      if(map[d]) days.push({date:d,total:map[d]});
     }
+  }
+
+  // UI
+  let total=days.reduce((a,b)=>a+b.total,0);
+  document.getElementById("total").innerText="₹"+total;
+
+  let max=Math.max(...days.map(d=>d.total),1);
+
+  let html="";
+  days.forEach(d=>{
+    let w=(d.total/max)*100;
+
+    html+=`
+    <div class="barRow" onclick="speak('${formatDate(d.date)} ${d.total} rupees')">
+      <div>${formatDate(d.date)}</div>
+      <div class="bar">
+        <div class="fill" style="width:${w}%">
+          ${d.total>0?'₹'+d.total:''}
+        </div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById("bars").innerHTML =
+    html || "<p style='text-align:center'>No data</p>";
 };
 </script>
 
