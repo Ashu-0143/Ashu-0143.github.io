@@ -1,6 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="manifest" href="/tailor/manifest.json">
+<meta name="theme-color" content="#007bff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work App - Daily Work</title>
+
+<style>
+    body { font-family: monospace; background:#f4f6f9; padding:15px; }
+    h2 { text-align:center; color: #333; margin-bottom: 20px; }
+    .grid { display:grid; grid-template-columns: repeat(2,1fr); gap:12px; }
+    .btn { background:white; border-radius:12px; padding:10px; text-align:center; font-size:14px; box-shadow:0 2px 4px rgba(0,0,0,0.1); cursor: pointer; }
+    .btn:active { transform: scale(0.95); background: #f0f0f0; }
+    .btn img { width:100%; height:90px; object-fit:contain; background:#fff; padding:5px; border-radius:10px; }
+    .btn p { margin: 8px 0 0; font-weight: bold; }
+    .custom { background:#007bff; color:white; display:flex; align-items:center; justify-content:center; font-weight: bold; font-size: 16px; }
+    .undo { background:#6c757d; color:white; margin-top:15px; width:100%; padding:12px; border:none; border-radius:12px; font-size:16px; }
+    .saveBtn { background:#28a745; color:white; margin-top:10px; width:100%; padding:14px; border:none; border-radius:12px; font-size:18px; font-weight: bold; }
+    .back { background:#444; color:white; padding:12px; width:100%; border:none; border-radius:10px; margin-bottom:15px; }
+    .calc { margin-top:20px; background:white; padding:20px; border-radius:12px; font-size:22px; text-align:right; border: 1px solid #ddd; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+    .line { border-top:2px dashed #000; margin:10px 0; }
+    .item { cursor:pointer; color: #444; padding: 2px 0; }
+    .item:hover { color: red; text-decoration: line-through; }
+    .popup { position:fixed; bottom:0; left:0; right:0; background:white; padding:20px; box-shadow:0 -4px 15px rgba(0,0,0,0.2); border-radius: 20px 20px 0 0; text-align: center; z-index: 1000; }
+    .popup button { width: 45%; padding: 12px; border-radius: 10px; border: none; margin: 5px; font-weight: bold; }
+    .save { background:#28a745; color:white; }
+    .discard { background:#dc3545; color:white; }
+</style>
+</head>
+
+<body>
+
+<button class="back" onclick="goBack()">⬅ Back to Dashboard</button>
+
+<h2>Daily Ledger</h2>
+
+<div class="grid">
+    <div class="btn" onclick="add(250)"><img src="images/blouse.jpg"><p>Blouse ₹250</p></div>
+    <div class="btn" onclick="add(500)"><img src="images/frock.jpeg"><p>Frock ₹500</p></div>
+    <div class="btn" onclick="add(300)"><img src="images/modelBlouse.jpeg"><p>Model ₹300</p></div>
+    <div class="btn" onclick="add(30)"><img src="images/nighty.jpeg"><p>Nighty ₹30</p></div>
+    <div class="btn" onclick="add(50)"><img src="images/saree.jpg"><p>Saree ₹50</p></div>
+    <div class="btn custom" onclick="customAmount()">➕ Custom</div>
+</div>
+
+<button class="undo" onclick="undo()">↩ Undo Last</button>
+<button class="saveBtn" onclick="save()">💾 Save to Cloud</button>
+
+<div class="calc" id="calc"></div>
+
+<div id="popup" class="popup" style="display:none;">
+    <p><b>You have unsaved changes!</b></p>
+    <button class="save" onclick="saveAndExit()">✔ Save</button>
+    <button class="discard" onclick="discard()">❌ Discard</button>
+</div>
+
 <script type="module">
-// ✅ Fixed the import URLs - pointing to specific JS files
-import { initializeApp } from "https://gstatic.com";
+// ✅ Fixed full gstatic URLs to prevent CORS/MIME errors
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://gstatic.com";
 import { getAuth, onAuthStateChanged } from "https://gstatic.com";
 
@@ -16,11 +73,12 @@ const auth = getAuth(app);
 
 let list = [];
 let changed = false;
+// Fixed: today is a string "YYYY-MM-DD"
 const today = new Date().toISOString().split("T")[0];
 
-// ✅ AUTH PROTECTION
 onAuthStateChanged(auth, (user) => {
   if (user && user.uid === "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
+    console.log("Authenticated:", user.displayName);
     load(); 
   } else {
     setTimeout(() => {
@@ -41,7 +99,7 @@ async function load(){
     }
 }
 
-// ✅ GLOBAL FUNCTIONS (Attached to window so HTML buttons can see them)
+// ✅ Attaching to window so HTML 'onclick' can access them
 window.add = (val) => {
     list.push(val);
     changed = true;
@@ -81,7 +139,7 @@ window.save = async () => {
         changed = false;
         alert("Cloud Sync Successful!");
     } catch (e) {
-        alert("Save failed: Check connection or permissions");
+        alert("Save failed: Check connection or Firestore rules.");
     }
 };
 
@@ -123,3 +181,6 @@ function render() {
     calcBox.innerHTML = html;
 }
 </script>
+
+</body>
+</html>
