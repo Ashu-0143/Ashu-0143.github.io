@@ -5,7 +5,6 @@
 <meta name="theme-color" content="#007bff">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Work App - Daily Work</title>
-
 <style>
     body { font-family: monospace; background:#f4f6f9; padding:15px; }
     h2 { text-align:center; color: #333; margin-bottom: 20px; }
@@ -28,11 +27,9 @@
     .discard { background:#dc3545; color:white; }
 </style>
 </head>
-
 <body>
 
 <button class="back" onclick="goBack()">⬅ Back to Dashboard</button>
-
 <h2>Daily Ledger</h2>
 
 <div class="grid">
@@ -56,14 +53,13 @@
 </div>
 
 <script type="module">
-// ✅ Fixed full gstatic URLs to prevent CORS/MIME errors
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp } from "https://gstatic.com";
 import { getFirestore, doc, getDoc, setDoc } from "https://gstatic.com";
 import { getAuth, onAuthStateChanged } from "https://gstatic.com";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
-  authDomain: "ashu-0143.firebaseapp.com",
+  authDomain: "://firebaseapp.com",
   projectId: "ashu-0143"
 };
 
@@ -73,12 +69,10 @@ const auth = getAuth(app);
 
 let list = [];
 let changed = false;
-// Fixed: today is a string "YYYY-MM-DD"
-const today = new Date().toISOString().split("T")[0];
+const today = new Date().toISOString().split("T")[0]; // ✅ String ID
 
 onAuthStateChanged(auth, (user) => {
   if (user && user.uid === "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
-    console.log("Authenticated:", user.displayName);
     load(); 
   } else {
     setTimeout(() => {
@@ -94,12 +88,9 @@ async function load(){
             list = snap.data().list || [];
         }
         render();
-    } catch (err) {
-        console.error("Load failed:", err);
-    }
+    } catch (err) { console.error("Load failed:", err); }
 }
 
-// ✅ Attaching to window so HTML 'onclick' can access them
 window.add = (val) => {
     list.push(val);
     changed = true;
@@ -110,11 +101,7 @@ window.customAmount = () => {
     let val = prompt("Enter Custom Amount:");
     if(!val) return;
     val = parseInt(val.replace(/[^0-9]/g,''));
-    if(val) {
-        list.push(val);
-        changed = true;
-        render();
-    }
+    if(val) { list.push(val); changed = true; render(); }
 };
 
 window.undo = () => {
@@ -138,49 +125,23 @@ window.save = async () => {
         });
         changed = false;
         alert("Cloud Sync Successful!");
-    } catch (e) {
-        alert("Save failed: Check connection or Firestore rules.");
-    }
+    } catch (e) { alert("Save failed!"); }
 };
 
 window.goBack = () => {
-    if(changed) {
-        document.getElementById("popup").style.display = "block";
-    } else {
-        window.location.href = "index.html"; 
-    }
+    if(changed) { document.getElementById("popup").style.display = "block"; }
+    else { window.location.href = "index.html"; }
 };
 
-window.saveAndExit = async () => {
-    await window.save();
-    window.location.href = "index.html";
-};
-
-window.discard = () => {
-    window.location.href = "index.html";
-};
-
-function format(n) { return n.toString().padStart(6, ' '); }
+window.saveAndExit = async () => { await window.save(); window.location.href = "index.html"; };
+window.discard = () => { window.location.href = "index.html"; };
 
 function render() {
     const calcBox = document.getElementById("calc");
-    let total = 0;
-    let html = "";
-    list.forEach((n, i) => {
-        total += n;
-        html += `<div class="item" title="Double-click to remove" ondblclick="removeItem(${i})">
-                    ${format(i === 0 ? n : "+" + n)}
-                 </div>`;
-    });
-    if(list.length > 0) {
-        html += `<div class="line"></div>`;
-        html += `<b>TOTAL ${format(total)}</b>`;
-    } else {
-        html = "<small style='color:#ccc'>No work added today</small>";
-    }
-    calcBox.innerHTML = html;
+    let total = list.reduce((a, b) => a + b, 0);
+    let html = list.map((n, i) => `<div class="item" ondblclick="removeItem(${i})">${n}</div>`).join('');
+    calcBox.innerHTML = list.length > 0 ? html + `<div class="line"></div><b>TOTAL ₹${total}</b>` : "<small>No work added</small>";
 }
 </script>
-
 </body>
 </html>
