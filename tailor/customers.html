@@ -1,148 +1,201 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="/tailor/manifest.json">
-    <link rel="shortcut icon" href="/tailor/tailor-icon.ico" type="image/x-icon">
-    <meta name="theme-color" content="#007bff">
-    <title>Work App - Customers</title>
+<meta charset="UTF-8">
 
-    <style>
-        body { font-family: Arial, sans-serif; background:#f4f6f9; padding:15px; }
-        h2 { color: #333; text-align: center; }
-        input { width:100%; padding:14px; font-size:18px; margin:8px 0; border-radius:10px; border:1px solid #ccc; box-sizing: border-box; }
-        button { width:100%; padding:14px; font-size:18px; margin:6px 0; border:none; border-radius:12px; cursor: pointer; transition: 0.2s; }
-        .searchBtn { background:#007bff; color:white; font-size:20px; }
-        .addBtn { background:#28a745; color:white; margin-top: 10px; }
-        .removeBtn { background:#dc3545; color:white; }
-        .entry { padding:10px; margin:6px 0; border-radius:10px; font-size:18px; display: flex; justify-content: space-between; }
-        .add { background:#d4edda; color:#155724; }
-        .remove { background:#f8d7da; color:#721c24; }
-        #custArea { margin-top: 20px; border-top: 2px solid #ddd; padding-top: 10px; }
-    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ✅ FIXED PATHS -->
+<link rel="manifest" href="manifest.json">
+<link rel="shortcut icon" href="tailor.png">
+
+<meta name="theme-color" content="#007bff">
+<title>Work App - Customers</title>
+
+<style>
+body { font-family: Arial; background:#f4f6f9; padding:15px; }
+h2 { text-align:center; }
+
+input {
+    width:100%;
+    padding:14px;
+    font-size:18px;
+    margin:8px 0;
+    border-radius:10px;
+    border:1px solid #ccc;
+}
+
+button {
+    width:100%;
+    padding:14px;
+    font-size:18px;
+    margin:6px 0;
+    border:none;
+    border-radius:12px;
+}
+
+.searchBtn { background:#007bff; color:white; }
+.addBtn { background:#28a745; color:white; }
+.removeBtn { background:#dc3545; color:white; }
+
+.entry {
+    padding:10px;
+    margin:6px 0;
+    border-radius:10px;
+    display:flex;
+    justify-content:space-between;
+}
+
+.add { background:#d4edda; }
+.remove { background:#f8d7da; }
+
+#custArea { margin-top:20px; }
+</style>
 </head>
 
 <body>
 
-    <h2>Customer Ledger</h2>
+<h2>Customer Ledger</h2>
 
-    <input id="search" placeholder="Enter Phone or Name" 
-           oninput="this.value=this.value.replace(/[^0-9a-zA-Z]/g,'')">
+<input id="search" placeholder="Phone or Name">
 
-    <button class="searchBtn" onclick="window.loadCustomer()">🔍 Search Customer</button>
+<button class="searchBtn" onclick="loadCustomer()">🔍 Search</button>
 
-    <div id="custArea"></div>
+<div id="custArea"></div>
 
+<!-- ✅ FIXED FIREBASE -->
 <script type="module">
-    // ✅ 1. Fixed the Import URLs
-    import { initializeApp } from "https://gstatic.com";
-    import { getFirestore, doc, getDoc, setDoc } from "https://gstatic.com";
-    import { getAuth, onAuthStateChanged } from "https://gstatic.com";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
-        authDomain: "ashu-0143.firebaseapp.com",
-        projectId: "ashu-0143"
-    };
+import {
+  getFirestore, doc, getDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+import {
+  getAuth, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    // ✅ 2. AUTH PROTECTION with 2-second delay for stability
-    onAuthStateChanged(auth, (user) => {
-        if (user && user.uid === "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
-            console.log("Welcome, Admin");
-        } else {
-            setTimeout(() => {
-                if (!auth.currentUser) {
-                    alert("Unauthorized! Redirecting.");
-                    window.location.href = "../index.html";
-                }
-            }, 2000);
-        }
-    });
+const firebaseConfig = {
+  apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
+  authDomain: "ashu-0143.firebaseapp.com",
+  projectId: "ashu-0143"
+};
 
-    function getLocal() { return JSON.parse(localStorage.getItem("customers") || "{}"); }
-    function saveLocal(d) { localStorage.setItem("customers", JSON.stringify(d)); }
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-    // ✅ 3. SEARCH LOGIC (Attached to window so HTML can see it)
-    window.loadCustomer = async function() {
-        let val = document.getElementById("search").value.trim();
-        if (!val) return;
+// ✅ AUTH CHECK
+onAuthStateChanged(auth, (user) => {
+  if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
+    window.location.href = "index.html";
+  }
+});
 
-        let local = getLocal();
-        let phone = val;
-        let data = local[phone];
+// LOCAL STORAGE
+function getLocal() {
+  return JSON.parse(localStorage.getItem("customers") || "{}");
+}
 
-        if (!data && isNaN(val)) {
-            let foundKey = Object.keys(local).find(k => local[k].name?.toLowerCase() === val.toLowerCase());
-            if (foundKey) { data = local[foundKey]; phone = foundKey; }
-        }
+function saveLocal(d) {
+  localStorage.setItem("customers", JSON.stringify(d));
+}
 
-        if (!data && !isNaN(val)) {
-            try {
-                const snap = await getDoc(doc(db, "customers", val));
-                if (snap.exists()) {
-                    data = snap.data();
-                    local[val] = data;
-                    saveLocal(local);
-                }
-            } catch (e) { console.error("Firebase fetch failed", e); }
-        }
+// 🔍 SEARCH
+window.loadCustomer = async function() {
+  let val = document.getElementById("search").value.trim();
+  if (!val) return;
 
-        if (!data) {
-            let name = prompt("New Customer! Enter Name:");
-            if (!name) return;
-            data = { name, history: [] };
-            phone = val;
-            local[phone] = data;
-            saveLocal(local);
-            await setDoc(doc(db, "customers", phone), data);
-        }
+  let local = getLocal();
+  let phone = val;
+  let data = local[phone];
 
-        render(phone, data);
-    };
-
-    // ✅ 4. UI RENDERER
-    function render(phone, data) {
-        let total = 0, html = "";
-        data.history.forEach(h => {
-            total += h.amount;
-            html += `<div class="entry ${h.amount > 0 ? 'add' : 'remove'}">
-                        <span>${h.amount > 0 ? 'Received' : 'Pending'}</span>
-                        <span>₹${Math.abs(h.amount)}</span>
-                     </div>`;
-        });
-
-        document.getElementById("custArea").innerHTML = `
-            <h3>Customer: ${data.name}</h3>
-            <h2 style="color:${total >= 0 ? '#28a745' : '#dc3545'}">Balance: ₹${total}</h2>
-            <div style="max-height:200px; overflow-y:auto; margin:10px 0; border:1px solid #eee; padding:5px;">${html || "No history"}</div>
-            <input id="amount" type="number" placeholder="Enter Amount">
-            <button class="addBtn" onclick="window.update('${phone}', 1)">➕ Add (Money Received)</button>
-            <button class="removeBtn" onclick="window.update('${phone}', -1)">➖ Remove (Work Done)</button>
-        `;
+  // search by name
+  if (!data) {
+    let found = Object.keys(local).find(k =>
+      local[k].name?.toLowerCase() === val.toLowerCase()
+    );
+    if (found) {
+      phone = found;
+      data = local[found];
     }
+  }
 
-    // ✅ 5. UPDATE DATA (Attached to window)
-    window.update = async function(phone, type) {
-        let amtInput = document.getElementById("amount");
-        let amt = parseInt(amtInput.value);
-        if (!amt) return;
+  // fetch from firebase
+  if (!data) {
+    const snap = await getDoc(doc(db, "customers", val));
+    if (snap.exists()) {
+      data = snap.data();
+      local[val] = data;
+      saveLocal(local);
+    }
+  }
 
-        let local = getLocal();
-        let d = local[phone];
+  // new customer
+  if (!data) {
+    let name = prompt("Enter Name:");
+    if (!name) return;
 
-        d.history.push({ amount: type * amt, date: new Date().toISOString() });
+    data = { name, history: [] };
+    phone = val;
 
-        saveLocal(local);
-        try {
-            await setDoc(doc(db, "customers", phone), d);
-            render(phone, d);
-            amtInput.value = "";
-        } catch (e) { alert("Save failed! Check your internet."); }
-    };
+    local[phone] = data;
+    saveLocal(local);
+    await setDoc(doc(db, "customers", phone), data);
+  }
+
+  render(phone, data);
+};
+
+// 🧾 RENDER
+function render(phone, data) {
+  let total = 0;
+  let html = "";
+
+  data.history.forEach(h => {
+    total += h.amount;
+    html += `
+      <div class="entry ${h.amount > 0 ? 'add' : 'remove'}">
+        <span>${h.amount > 0 ? 'Received' : 'Pending'}</span>
+        <span>₹${Math.abs(h.amount)}</span>
+      </div>
+    `;
+  });
+
+  document.getElementById("custArea").innerHTML = `
+    <h3>${data.name}</h3>
+    <h2 style="color:${total>=0?'green':'red'}">₹${total}</h2>
+
+    <div style="max-height:200px; overflow:auto;">
+      ${html || "No history"}
+    </div>
+
+    <input id="amount" type="number" placeholder="Amount">
+
+    <button class="addBtn" onclick="update('${phone}',1)">➕ Received</button>
+    <button class="removeBtn" onclick="update('${phone}',-1)">➖ Work Done</button>
+  `;
+}
+
+// ➕ UPDATE
+window.update = async function(phone, type) {
+  let amt = parseInt(document.getElementById("amount").value);
+  if (!amt) return;
+
+  let local = getLocal();
+  let d = local[phone];
+
+  d.history.push({
+    amount: type * amt,
+    date: new Date().toISOString()
+  });
+
+  saveLocal(local);
+  await setDoc(doc(db, "customers", phone), d);
+
+  render(phone, d);
+};
 </script>
+
 </body>
 </html>
