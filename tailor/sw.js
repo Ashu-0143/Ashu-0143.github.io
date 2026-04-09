@@ -1,4 +1,5 @@
-const CACHE_NAME = "tailor-cache-v1";
+const CACHE_NAME = "tailor-cache-v3";
+
 const urlsToCache = [
   "./",
   "./index.html",
@@ -6,34 +7,42 @@ const urlsToCache = [
   "./customers.html",
   "./summary.html",
   "./style.css",
-  "./script.js",
-  "../global.css",
-  "./images/blouse.jpg",
-  "./images/frock.jpeg",
-  "./images/modelBlouse.jpeg",
-  "./images/nighty.jpeg",
-  "./images/saree.jpg"
+  "./script.js"
 ];
 
-// Install Event
+// Install
 self.addEventListener("install", e => {
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
   );
 });
 
-// Fetch Event
+// Activate
+self.addEventListener("activate", e => {
+  e.waitUntil(
+    caches.keys().then(names =>
+      Promise.all(names.map(name => {
+        if (name !== CACHE_NAME) return caches.delete(name);
+      }))
+    )
+  );
+});
+
+// Fetch
 self.addEventListener("fetch", e => {
   const url = e.request.url;
 
-  // ✅ BYPASS CACHE for Firebase & Google APIs
-  if (url.includes("firebasejs") || url.includes("googleapis.com") || url.includes("firebaseapp.com")) {
-    return; // Let the browser handle these normally via the network
+  // ✅ Skip Firebase (IMPORTANT)
+  if (
+    url.includes("firebasejs") ||
+    url.includes("googleapis.com") ||
+    url.includes("firebaseapp.com")
+  ) {
+    return;
   }
 
   e.respondWith(
-    caches.match(e.request).then(response => {
-      return response || fetch(e.request);
-    })
+    caches.match(e.request).then(res => res || fetch(e.request))
   );
 });

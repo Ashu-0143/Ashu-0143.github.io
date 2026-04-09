@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="shortcut icon" href="../favicons/tailor.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="../favicons/tailor.ico">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#007bff">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +10,7 @@
   <style>
     body { font-family: sans-serif; background: #8f8f8f; padding: 20px; text-align: center; }
     h1 { color: #333; margin-bottom: 30px; }
-    
+
     .main-btn {
         width: 100%;
         max-width: 400px;
@@ -22,63 +22,55 @@
         border-radius: 15px;
         cursor: pointer;
         color: white;
-        transition: transform 0.2s, box-shadow 0.2s;
     }
-    
-    .main-btn:active { transform: scale(0.98); }
-    
-    .btn-daily { background: linear-gradient(135deg, #667eea, #764ba2); }
-    .btn-cust { background: linear-gradient(135deg, #2af598, #009efd); }
-    .btn-summ { background: linear-gradient(135deg, #f093fb, #f5576c); }
-    
-    .home-link { display: block; margin-top: 30px; color: #333; text-decoration: none; font-size: 14px; font-weight: bold; }
+
+    .btn-daily { background: #667eea; }
+    .btn-cust { background: #009efd; }
+    .btn-summ { background: #f5576c; }
+
+    .home-link { display: block; margin-top: 30px; color: #333; text-decoration: none; }
   </style>
 </head>
 
 <body>
 
-  <h1> <button onclick="login()">Login Verify</button> </h1>
+<h1>Dashboard</h1>
 
-  <button class="main-btn btn-daily" onclick="go('daily.html')">📋 Daily Work</button>
-  <button class="main-btn btn-cust" onclick="go('customers.html')">👥 Customers</button>
-  <button class="main-btn btn-summ" onclick="go('summary.html')">📊 Summary</button>
+<button class="main-btn btn-daily" onclick="go('daily.html')">📋 Daily Work</button>
+<button class="main-btn btn-cust" onclick="go('customers.html')">👥 Customers</button>
+<button class="main-btn btn-summ" onclick="go('summary.html')">📊 Summary</button>
 
-  <a href="../index.html" class="home-link">⬅ Back to Main Site (Chat)</a>
+<a href="../index.html" class="home-link">⬅ Back</a>
 
-  <!-- ✅ Added Firebase Auth Check -->
-  <script type="module">
-    import { initializeApp } from "https://gstatic.com";
-    import { getAuth, onAuthStateChanged } from "https://gstatic.com";
+<!-- ✅ FIXED FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
-      authDomain: "://firebaseapp.com",
-      projectId: "ashu-0143"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
+  authDomain: "ashu-0143.firebaseapp.com",
+  projectId: "ashu-0143"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-    // Lock the dashboard to your UID only
-    onAuthStateChanged(auth, (user) => {
-      if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
-        console.log("Unauthorized access to dashboard.");
-        window.location.href = "../index.html";
-      }
-    });
-  </script>
+onAuthStateChanged(auth, (user) => {
+  if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
+    window.location.href = "../index.html";
+  }
+});
+</script>
 
-  <script src="script.js"></script>
-  <script>
-    // Service Worker Registration
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log("Tailor PWA Registered", reg.scope))
-          .catch(err => console.log("Tailor PWA Error", err));
-      });
-    }
-  </script>
+<script src="script.js"></script>
+
+<!-- ✅ SAFE SERVICE WORKER -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+</script>
 
 </body>
 </html>
