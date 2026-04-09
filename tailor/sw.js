@@ -1,4 +1,4 @@
-const CACHE_NAME = "tailor-cache-v3";
+const CACHE_NAME = "tailor-cache-v4";
 
 const urlsToCache = [
   "./",
@@ -7,10 +7,17 @@ const urlsToCache = [
   "./customers.html",
   "./summary.html",
   "./style.css",
-  "./script.js"
+  "./script.js",
+  "./manifest.json",
+
+  // ✅ IMPORTANT: icons
+  "./images/tailor.png",
+
+  // optional but useful
+  "../global.css"
 ];
 
-// Install
+// INSTALL
 self.addEventListener("install", e => {
   self.skipWaiting();
   e.waitUntil(
@@ -18,31 +25,35 @@ self.addEventListener("install", e => {
   );
 });
 
-// Activate
+// ACTIVATE (clean old cache)
 self.addEventListener("activate", e => {
   e.waitUntil(
     caches.keys().then(names =>
-      Promise.all(names.map(name => {
-        if (name !== CACHE_NAME) return caches.delete(name);
-      }))
+      Promise.all(
+        names.map(name => {
+          if (name !== CACHE_NAME) return caches.delete(name);
+        })
+      )
     )
   );
 });
 
-// Fetch
+// FETCH
 self.addEventListener("fetch", e => {
   const url = e.request.url;
 
-  // ✅ Skip Firebase (IMPORTANT)
+  // ✅ SAFELY skip Firebase (without breaking fetch)
   if (
     url.includes("firebasejs") ||
     url.includes("googleapis.com") ||
     url.includes("firebaseapp.com")
   ) {
-    return;
+    return; // browser handles it
   }
 
   e.respondWith(
-    caches.match(e.request).then(res => res || fetch(e.request))
+    caches.match(e.request).then(res => {
+      return res || fetch(e.request);
+    })
   );
 });
