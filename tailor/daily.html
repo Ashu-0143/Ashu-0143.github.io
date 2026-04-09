@@ -1,35 +1,131 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="manifest" href="/tailor/manifest.json">
+<meta charset="UTF-8">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#007bff">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Work App - Daily Work</title>
+
 <style>
-    body { font-family: monospace; background:#f4f6f9; padding:15px; }
-    h2 { text-align:center; color: #333; margin-bottom: 20px; }
-    .grid { display:grid; grid-template-columns: repeat(2,1fr); gap:12px; }
-    .btn { background:white; border-radius:12px; padding:10px; text-align:center; font-size:14px; box-shadow:0 2px 4px rgba(0,0,0,0.1); cursor: pointer; }
-    .btn:active { transform: scale(0.95); background: #f0f0f0; }
-    .btn img { width:100%; height:90px; object-fit:contain; background:#fff; padding:5px; border-radius:10px; }
-    .btn p { margin: 8px 0 0; font-weight: bold; }
-    .custom { background:#007bff; color:white; display:flex; align-items:center; justify-content:center; font-weight: bold; font-size: 16px; }
-    .undo { background:#6c757d; color:white; margin-top:15px; width:100%; padding:12px; border:none; border-radius:12px; font-size:16px; }
-    .saveBtn { background:#28a745; color:white; margin-top:10px; width:100%; padding:14px; border:none; border-radius:12px; font-size:18px; font-weight: bold; }
-    .back { background:#444; color:white; padding:12px; width:100%; border:none; border-radius:10px; margin-bottom:15px; }
-    .calc { margin-top:20px; background:white; padding:20px; border-radius:12px; font-size:22px; text-align:right; border: 1px solid #ddd; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
-    .line { border-top:2px dashed #000; margin:10px 0; }
-    .item { cursor:pointer; color: #444; padding: 2px 0; }
-    .item:hover { color: red; text-decoration: line-through; }
-    .popup { position:fixed; bottom:0; left:0; right:0; background:white; padding:20px; box-shadow:0 -4px 15px rgba(0,0,0,0.2); border-radius: 20px 20px 0 0; text-align: center; z-index: 1000; }
-    .popup button { width: 45%; padding: 12px; border-radius: 10px; border: none; margin: 5px; font-weight: bold; }
-    .save { background:#28a745; color:white; }
-    .discard { background:#dc3545; color:white; }
+body { font-family: monospace; background:#f4f6f9; padding:15px; }
+h2 { text-align:center; color: #333; margin-bottom: 20px; }
+
+.grid { display:grid; grid-template-columns: repeat(2,1fr); gap:12px; }
+
+.btn {
+    background:white;
+    border-radius:12px;
+    padding:10px;
+    text-align:center;
+    font-size:14px;
+    box-shadow:0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+
+.btn:active { transform: scale(0.95); background: #f0f0f0; }
+
+.btn img {
+    width:100%;
+    height:90px;
+    object-fit:contain;
+    background:#fff;
+    padding:5px;
+    border-radius:10px;
+}
+
+.btn p { margin: 8px 0 0; font-weight: bold; }
+
+.custom {
+    background:#007bff;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.undo {
+    background:#6c757d;
+    color:white;
+    margin-top:15px;
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    font-size:16px;
+}
+
+.saveBtn {
+    background:#28a745;
+    color:white;
+    margin-top:10px;
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    font-weight: bold;
+}
+
+.back {
+    background:#444;
+    color:white;
+    padding:12px;
+    width:100%;
+    border:none;
+    border-radius:10px;
+    margin-bottom:15px;
+}
+
+.calc {
+    margin-top:20px;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    font-size:22px;
+    text-align:right;
+    border: 1px solid #ddd;
+}
+
+.line { border-top:2px dashed #000; margin:10px 0; }
+
+.item { cursor:pointer; color: #444; }
+.item:hover { color:red; text-decoration: line-through; }
+
+.popup {
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    background:white;
+    padding:20px;
+    box-shadow:0 -4px 15px rgba(0,0,0,0.2);
+    border-radius:20px 20px 0 0;
+    text-align:center;
+}
+
+.popup button {
+    width:45%;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+    margin:5px;
+    font-weight:bold;
+}
+
+.save { background:#28a745; color:white; }
+.discard { background:#dc3545; color:white; }
 </style>
 </head>
+
 <body>
 
-<button class="back" onclick="goBack()">⬅ Back to Dashboard</button>
+<button class="back" onclick="goBack()">⬅ Back</button>
 <h2>Daily Ledger</h2>
 
 <div class="grid">
@@ -41,25 +137,30 @@
     <div class="btn custom" onclick="customAmount()">➕ Custom</div>
 </div>
 
-<button class="undo" onclick="undo()">↩ Undo Last</button>
-<button class="saveBtn" onclick="save()">💾 Save to Cloud</button>
+<button class="undo" onclick="undo()">↩ Undo</button>
+<button class="saveBtn" onclick="save()">💾 Save</button>
 
 <div class="calc" id="calc"></div>
 
 <div id="popup" class="popup" style="display:none;">
-    <p><b>You have unsaved changes!</b></p>
-    <button class="save" onclick="saveAndExit()">✔ Save</button>
-    <button class="discard" onclick="discard()">❌ Discard</button>
+    <p><b>Unsaved changes!</b></p>
+    <button class="save" onclick="saveAndExit()">Save</button>
+    <button class="discard" onclick="discard()">Discard</button>
 </div>
 
+<!-- ✅ FIXED FIREBASE -->
 <script type="module">
-import { initializeApp } from "https://gstatic.com";
-import { getFirestore, doc, getDoc, setDoc } from "https://gstatic.com";
-import { getAuth, onAuthStateChanged } from "https://gstatic.com";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { getFirestore, doc, getDoc, setDoc }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import { getAuth, onAuthStateChanged }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
-  authDomain: "://firebaseapp.com",
+  authDomain: "ashu-0143.firebaseapp.com",
   projectId: "ashu-0143"
 };
 
@@ -69,79 +170,56 @@ const auth = getAuth(app);
 
 let list = [];
 let changed = false;
-const today = new Date().toISOString().split("T")[0]; // ✅ String ID
+const today = new Date().toISOString().split("T")[0];
 
 onAuthStateChanged(auth, (user) => {
-  if (user && user.uid === "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
-    load(); 
-  } else {
-    setTimeout(() => {
-        if (!auth.currentUser) window.location.href = "index.html";
-    }, 2000);
-  }
+  if (user) load();
+  else window.location.href = "index.html";
 });
 
 async function load(){
-    try {
-        const snap = await getDoc(doc(db, "daily", today));
-        if(snap.exists()){
-            list = snap.data().list || [];
-        }
-        render();
-    } catch (err) { console.error("Load failed:", err); }
+    const snap = await getDoc(doc(db, "daily", today));
+    if(snap.exists()) list = snap.data().list || [];
+    render();
 }
 
-window.add = (val) => {
-    list.push(val);
-    changed = true;
-    render();
-};
+window.add = (val) => { list.push(val); changed = true; render(); };
 
 window.customAmount = () => {
-    let val = prompt("Enter Custom Amount:");
+    let val = prompt("Enter amount:");
     if(!val) return;
-    val = parseInt(val.replace(/[^0-9]/g,''));
+    val = parseInt(val);
     if(val) { list.push(val); changed = true; render(); }
 };
 
-window.undo = () => {
-    list.pop();
-    changed = true;
-    render();
-};
+window.undo = () => { list.pop(); changed = true; render(); };
 
-window.removeItem = (i) => {
-    list.splice(i, 1);
-    changed = true;
-    render();
-};
+window.removeItem = (i) => { list.splice(i,1); changed = true; render(); };
 
 window.save = async () => {
-    try {
-        await setDoc(doc(db, "daily", today), {
-            date: today,
-            list: list,
-            total: list.reduce((a, b) => a + b, 0)
-        });
-        changed = false;
-        alert("Cloud Sync Successful!");
-    } catch (e) { alert("Save failed!"); }
+    await setDoc(doc(db, "daily", today), {
+        list,
+        total: list.reduce((a,b)=>a+b,0)
+    });
+    changed = false;
+    alert("Saved!");
 };
 
 window.goBack = () => {
-    if(changed) { document.getElementById("popup").style.display = "block"; }
-    else { window.location.href = "index.html"; }
+    if(changed) document.getElementById("popup").style.display="block";
+    else window.location.href="index.html";
 };
 
-window.saveAndExit = async () => { await window.save(); window.location.href = "index.html"; };
-window.discard = () => { window.location.href = "index.html"; };
+window.saveAndExit = async () => { await save(); window.location.href="index.html"; };
+window.discard = () => { window.location.href="index.html"; };
 
-function render() {
-    const calcBox = document.getElementById("calc");
-    let total = list.reduce((a, b) => a + b, 0);
-    let html = list.map((n, i) => `<div class="item" ondblclick="removeItem(${i})">${n}</div>`).join('');
-    calcBox.innerHTML = list.length > 0 ? html + `<div class="line"></div><b>TOTAL ₹${total}</b>` : "<small>No work added</small>";
+function render(){
+    let total = list.reduce((a,b)=>a+b,0);
+    let html = list.map((n,i)=>`<div class="item" ondblclick="removeItem(${i})">${n}</div>`).join('');
+    document.getElementById("calc").innerHTML =
+        list.length ? html + `<div class="line"></div><b>₹${total}</b>` : "No work";
 }
 </script>
+
 </body>
 </html>
