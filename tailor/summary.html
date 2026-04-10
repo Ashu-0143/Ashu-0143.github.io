@@ -129,7 +129,7 @@
 <div class="container">
     <div class="nav-header">
         <button class="back" onclick="goBack()">⬅ Back</button>
-        <h2>Summary</h2>
+        <h2 id="title">Summary</h2>
         <div style="width:70px"></div>
     </div>
 
@@ -163,12 +163,16 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+let currentUid = null;
 window.goBack = () => location.href = "index.html";
 
 onAuthStateChanged(auth, (user) => {
-  if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
+  if (!user) {
     window.location.href = "index.html";
   } else {
+    currentUid = user.uid;
+    // Visual check for Admin
+    if(user.uid === "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") document.getElementById("title").innerText = "Admin Summary";
     loadData("today");
   }
 });
@@ -188,13 +192,17 @@ window.manualEdit = async function(date, current) {
     if (newAmt === null || newAmt === "") return;
     
     let total = parseInt(newAmt) || 0;
-    await setDoc(doc(db, "daily", date), { date, total }, { merge: true });
+    // Save to user-specific path
+    await setDoc(doc(db, "users", currentUid, "daily", date), { date, total }, { merge: true });
     loadData("month"); 
 };
 
 window.loadData = async function(type){
+  if(!currentUid) return;
   document.getElementById("periodLabel").innerText = type;
-  const snap = await getDocs(collection(db,"daily"));
+  
+  // Fetch from user-specific collection
+  const snap = await getDocs(collection(db, "users", currentUid, "daily"));
   let map = {};
   snap.forEach(doc => {
     let d = doc.data();
@@ -214,7 +222,7 @@ window.loadData = async function(type){
       let d = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
       if(map[d]) days.push({date:d, total:map[d]});
     }
-    days.reverse(); // Newest dates at the top
+    days.reverse(); 
   }
 
   let totalEarnings = days.reduce((a,b)=>a+b.total,0);

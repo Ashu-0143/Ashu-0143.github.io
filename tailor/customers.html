@@ -11,53 +11,56 @@
 
 <style>
     :root {
-        --primary: #007bff;
+        --primary: #667eea;
         --success: #28a745;
         --danger: #dc3545;
-        --bg: #f4f6f9;
+        --bg: #f8f9fa;
         --card: #ffffff;
     }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 15px; margin: 0; color: #333; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 15px; margin: 0; color: #333; display: flex; justify-content: center; min-height: 100vh; box-sizing: border-box; }
     
-    .nav-header { display: flex; align-items: center; margin-bottom: 20px; }
-    .back-btn { text-decoration: none; color: #444; font-weight: bold; background: #ddd; padding: 8px 15px; border-radius: 10px; font-size: 14px; }
-    h2 { flex: 1; text-align: center; margin: 0; font-size: 20px; }
+    .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; }
 
-    .search-box { background: var(--card); padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    .nav-header { display: flex; align-items: center; margin-bottom: 20px; justify-content: space-between; }
+    .back-btn { text-decoration: none; color: #636e72; font-weight: bold; background: white; padding: 10px 15px; border-radius: 12px; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    h2 { margin: 0; font-size: 20px; color: #2d3436; }
+
+    .search-box { background: var(--card); padding: 15px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); margin-bottom: 20px; }
     input {
         width: 100%;
         padding: 14px;
         font-size: 16px;
         margin: 8px 0;
-        border-radius: 10px;
-        border: 1px solid #eee;
+        border-radius: 12px;
+        border: 1px solid #f1f3f5;
         box-sizing: border-box;
-        background: #fafafa;
+        background: #f8f9fa;
+        outline: none;
     }
-    input:focus { border-color: var(--primary); outline: none; background: #fff; }
+    input:focus { border-color: var(--primary); background: #fff; }
 
-    button { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; margin: 6px 0; border: none; border-radius: 12px; cursor: pointer; transition: 0.2s; }
+    button { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; margin: 6px 0; border: none; border-radius: 15px; cursor: pointer; transition: 0.2s; }
     button:active { transform: scale(0.98); }
 
-    .searchBtn { background: var(--primary); color: white; }
+    .searchBtn { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
     .addBtn { background: var(--success); color: white; }
     .removeBtn { background: var(--danger); color: white; }
 
-    /* Customer Profile Area */
-    .cust-card { background: var(--card); padding: 20px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); text-align: center; }
-    .balance-circle { width: 100px; height: 100px; border-radius: 50%; border: 4px solid #eee; display: flex; align-items: center; justify-content: center; margin: 15px auto; font-size: 18px; font-weight: bold; }
+    .cust-card { background: var(--card); padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); text-align: center; margin-top: 10px; }
+    .balance-circle { width: 110px; height: 110px; border-radius: 50%; border: 5px solid #f1f3f5; display: flex; align-items: center; justify-content: center; margin: 15px auto; font-size: 20px; font-weight: 800; }
     
-    .history-container { margin: 15px 0; max-height: 180px; overflow-y: auto; text-align: left; padding: 5px; border-top: 1px solid #f0f0f0; }
+    .history-container { margin: 15px 0; max-height: 200px; overflow-y: auto; text-align: left; padding: 5px; border-top: 1px solid #f8f9fa; }
     .entry {
-        padding: 10px;
-        margin: 5px 0;
-        border-radius: 8px;
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 10px;
         display: flex;
         justify-content: space-between;
         font-size: 14px;
+        font-weight: 500;
     }
-    .add { background: #d4edda; color: #155724; }
-    .remove { background: #f8d7da; color: #721c24; }
+    .add { background: #e7f5ed; color: #1e7e34; }
+    .remove { background: #fdf2f2; color: #c82333; }
 
     #custArea { margin-top: 10px; }
 </style>
@@ -65,18 +68,20 @@
 
 <body>
 
-<div class="nav-header">
-    <a href="index.html" class="back-btn">⬅ Back</a>
-    <h2>Ledger</h2>
-    <div style="width:60px"></div> <!-- Spacer -->
-</div>
+<div class="container">
+    <div class="nav-header">
+        <a href="index.html" class="back-btn">⬅ Back</a>
+        <h2>Customer Ledger</h2>
+        <div style="width:60px"></div>
+    </div>
 
-<div class="search-box">
-    <input id="search" type="tel" placeholder="Phone Number or Name">
-    <button class="searchBtn" onclick="loadCustomer()">🔍 Find Customer</button>
-</div>
+    <div class="search-box">
+        <input id="search" type="tel" placeholder="Phone Number or Name">
+        <button class="searchBtn" onclick="loadCustomer()">🔍 Find Customer</button>
+    </div>
 
-<div id="custArea"></div>
+    <div id="custArea"></div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://gstatic.com";
@@ -85,7 +90,7 @@ import { getAuth, onAuthStateChanged } from "https://gstatic.com";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
-  authDomain: "://firebaseapp.com",
+  authDomain: "ashu-0143.firebaseapp.com",
   projectId: "ashu-0143"
 };
 
@@ -93,30 +98,38 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+let currentUid = null;
+
 onAuthStateChanged(auth, (user) => {
-  if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
+  if (!user) {
     window.location.href = "index.html";
+  } else {
+    currentUid = user.uid;
   }
 });
 
-function getLocal() { return JSON.parse(localStorage.getItem("customers") || "{}"); }
-function saveLocal(d) { localStorage.setItem("customers", JSON.stringify(d)); }
+// Use UID in Storage Key to prevent overlap on same device
+function getLocalKey() { return `cust_${currentUid}`; }
+function getLocal() { return JSON.parse(localStorage.getItem(getLocalKey()) || "{}"); }
+function saveLocal(d) { localStorage.setItem(getLocalKey(), JSON.stringify(d)); }
 
 window.loadCustomer = async function() {
   let val = document.getElementById("search").value.trim();
-  if (!val) return;
+  if (!val || !currentUid) return;
 
   let local = getLocal();
   let phone = val;
   let data = local[phone];
 
+  // 1. Check Local Name
   if (!data) {
     let found = Object.keys(local).find(k => local[k].name?.toLowerCase() === val.toLowerCase());
     if (found) { phone = found; data = local[found]; }
   }
 
+  // 2. Check User-Specific Firebase Path
   if (!data) {
-    const snap = await getDoc(doc(db, "customers", val));
+    const snap = await getDoc(doc(db, "users", currentUid, "customers", val));
     if (snap.exists()) {
       data = snap.data();
       local[val] = data;
@@ -124,6 +137,7 @@ window.loadCustomer = async function() {
     }
   }
 
+  // 3. Create New if not found
   if (!data) {
     let name = prompt("New Customer Name:");
     if (!name) return;
@@ -131,7 +145,7 @@ window.loadCustomer = async function() {
     phone = val;
     local[phone] = data;
     saveLocal(local);
-    await setDoc(doc(db, "customers", phone), data);
+    await setDoc(doc(db, "users", currentUid, "customers", phone), data);
   }
   render(phone, data);
 };
@@ -143,7 +157,7 @@ function render(phone, data) {
     total += h.amount;
     html += `
       <div class="entry ${h.amount > 0 ? 'add' : 'remove'}">
-        <span>${h.amount > 0 ? 'Received' : 'Work Done'}</span>
+        <span>${h.amount > 0 ? 'Received' : 'Work Bill'}</span>
         <b>₹${Math.abs(h.amount)}</b>
       </div>
     `;
@@ -151,20 +165,20 @@ function render(phone, data) {
 
   document.getElementById("custArea").innerHTML = `
     <div class="cust-card">
-      <h3 style="margin:0; color:#666;">${data.name}</h3>
-      <div class="balance-circle" style="color:${total>=0?'#28a745':'#dc3545'}; border-color:${total>=0?'#d4edda':'#f8d7da'}">
+      <h3 style="margin:0; color:#636e72; font-size: 16px;">${data.name}</h3>
+      <div class="balance-circle" style="color:${total>=0?'#28a745':'#dc3545'}; border-color:${total>=0?'#e7f5ed':'#fdf2f2'}">
         ₹${total}
       </div>
       
       <div class="history-container">
-        ${html || "<p style='text-align:center; color:#ccc'>No transaction history</p>"}
+        ${html || "<p style='text-align:center; color:#ccc; font-size:14px;'>No transactions</p>"}
       </div>
 
       <input id="amount" type="number" placeholder="Enter Amount" inputmode="numeric">
 
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-          <button class="addBtn" onclick="update('${phone}',1)">➕ Paid</button>
-          <button class="removeBtn" onclick="update('${phone}',-1)">➖ Bill</button>
+          <button class="addBtn" onclick="update('${phone}',1)">💰 Paid</button>
+          <button class="removeBtn" onclick="update('${phone}',-1)">🧵 Bill</button>
       </div>
     </div>
   `;
@@ -173,7 +187,7 @@ function render(phone, data) {
 window.update = async function(phone, type) {
   let amtEl = document.getElementById("amount");
   let amt = parseInt(amtEl.value);
-  if (!amt) return;
+  if (!amt || !currentUid) return;
 
   let local = getLocal();
   let d = local[phone];
@@ -184,7 +198,7 @@ window.update = async function(phone, type) {
   });
 
   saveLocal(local);
-  await setDoc(doc(db, "customers", phone), d);
+  await setDoc(doc(db, "users", currentUid, "customers", phone), d);
   render(phone, d);
   amtEl.value = "";
 };

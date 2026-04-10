@@ -2,146 +2,80 @@
 <html>
 <head>
 <meta charset="UTF-8">
-
-<!-- PWA -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#007bff">
 <link rel="icon" href="images/tailor.png">
 <link rel="apple-touch-icon" href="images/tailor.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Work App - Daily Work</title>
+<title>Daily Work Ledger</title>
 
 <style>
-body { font-family: monospace; background:#f4f6f9; padding:15px; }
-h2 { text-align:center; color: #333; margin-bottom: 20px; }
+    :root { --primary: #667eea; --bg: #f8f9fa; --text: #2d3436; }
+    body { 
+        font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; 
+        display: flex; justify-content: center; min-height: 100vh; padding: 20px; box-sizing: border-box;
+    }
+    .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; }
+    
+    .nav-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .back { background: white; color: #636e72; padding: 10px 18px; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    h2 { margin: 0; font-size: 20px; color: var(--text); }
 
-.grid { display:grid; grid-template-columns: repeat(2,1fr); gap:12px; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 15px; }
+    .btn {
+        background: white; border-radius: 20px; padding: 12px; text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s;
+    }
+    .btn:active { transform: scale(0.95); }
+    .btn img { width: 100%; height: 80px; object-fit: contain; border-radius: 10px; margin-bottom: 8px; }
+    .btn p { margin: 0; font-size: 14px; font-weight: 600; color: #444; }
 
-.btn {
-    background:white;
-    border-radius:12px;
-    padding:10px;
-    text-align:center;
-    font-size:14px;
-    box-shadow:0 2px 4px rgba(0,0,0,0.1);
-    cursor: pointer;
-}
+    .custom { background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-.btn:active { transform: scale(0.95); background: #f0f0f0; }
+    .calc {
+        background: white; padding: 25px; border-radius: 24px; font-size: 20px; 
+        text-align: right; box-shadow: 0 10px 30px rgba(0,0,0,0.04); margin-bottom: 15px;
+    }
+    .item { padding: 5px 0; color: #636e72; cursor: pointer; font-size: 16px; }
+    .item:hover { color: #f5576c; text-decoration: line-through; }
+    .line { border-top: 1px solid #eee; margin: 10px 0; }
 
-.btn img {
-    width:100%;
-    height:90px;
-    object-fit:contain;
-    background:#fff;
-    padding:5px;
-    border-radius:10px;
-}
+    .footer-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+    .undo { background: #636e72; color: white; padding: 15px; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; }
+    .saveBtn { background: linear-gradient(135deg, #2af598 0%, #009efd 100%); color: white; padding: 15px; border: none; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; }
 
-.btn p { margin: 8px 0 0; font-weight: bold; }
-
-.custom {
-    background:#007bff;
-    color:white;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight: bold;
-    font-size: 16px;
-}
-
-.undo {
-    background:#6c757d;
-    color:white;
-    margin-top:15px;
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:12px;
-    font-size:16px;
-}
-
-.saveBtn {
-    background:#28a745;
-    color:white;
-    margin-top:10px;
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:12px;
-    font-size:18px;
-    font-weight: bold;
-}
-
-.back {
-    background:#444;
-    color:white;
-    padding:12px;
-    width:100%;
-    border:none;
-    border-radius:10px;
-    margin-bottom:15px;
-}
-
-.calc {
-    margin-top:20px;
-    background:white;
-    padding:20px;
-    border-radius:12px;
-    font-size:22px;
-    text-align:right;
-    border: 1px solid #ddd;
-}
-
-.line { border-top:2px dashed #000; margin:10px 0; }
-
-.item { cursor:pointer; color: #444; }
-.item:hover { color:red; text-decoration: line-through; }
-
-.popup {
-    position:fixed;
-    bottom:0;
-    left:0;
-    right:0;
-    background:white;
-    padding:20px;
-    box-shadow:0 -4px 15px rgba(0,0,0,0.2);
-    border-radius:20px 20px 0 0;
-    text-align:center;
-}
-
-.popup button {
-    width:45%;
-    padding:12px;
-    border-radius:10px;
-    border:none;
-    margin:5px;
-    font-weight:bold;
-}
-
-.save { background:#28a745; color:white; }
-.discard { background:#dc3545; color:white; }
+    .popup { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; background: white; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); border-radius: 24px; text-align: center; z-index: 100; }
+    .popup button { width: 45%; padding: 12px; border-radius: 12px; border: none; margin: 5px; font-weight: bold; cursor: pointer; }
+    .save { background: #28a745; color: white; }
+    .discard { background: #636e72; color: white; }
 </style>
 </head>
 
 <body>
 
-<button class="back" onclick="goBack()">⬅ Back</button>
-<h2>Daily Ledger</h2>
+<div class="container">
+    <div class="nav-header">
+        <button class="back" onclick="goBack()">⬅ Back</button>
+        <h2>Daily Ledger</h2>
+        <div style="width:70px"></div>
+    </div>
 
-<div class="grid">
-    <div class="btn" onclick="add(250)"><img src="images/blouse.jpg"><p>Blouse ₹250</p></div>
-    <div class="btn" onclick="add(500)"><img src="images/frock.jpeg"><p>Frock ₹500</p></div>
-    <div class="btn" onclick="add(300)"><img src="images/modelBlouse.jpeg"><p>Model ₹300</p></div>
-    <div class="btn" onclick="add(30)"><img src="images/nighty.jpeg"><p>Nighty ₹30</p></div>
-    <div class="btn" onclick="add(50)"><img src="images/saree.jpg"><p>Saree ₹50</p></div>
-    <div class="btn custom" onclick="customAmount()">➕ Custom</div>
+    <div class="grid">
+        <div class="btn" onclick="add(250)"><img src="images/blouse.jpg"><p>Blouse ₹250</p></div>
+        <div class="btn" onclick="add(500)"><img src="images/frock.jpeg"><p>Frock ₹500</p></div>
+        <div class="btn" onclick="add(300)"><img src="images/modelBlouse.jpeg"><p>Model ₹300</p></div>
+        <div class="btn" onclick="add(30)"><img src="images/nighty.jpeg"><p>Nighty ₹30</p></div>
+        <div class="btn" onclick="add(50)"><img src="images/saree.jpg"><p>Saree ₹50</p></div>
+        <div class="btn custom" onclick="customAmount()">➕ Custom</div>
+    </div>
+
+    <div class="calc" id="calc">No work logged</div>
+
+    <div class="footer-actions">
+        <button class="undo" onclick="undo()">Undo</button>
+        <button class="saveBtn" onclick="save()">Save Today</button>
+    </div>
 </div>
-
-<button class="undo" onclick="undo()">↩ Undo</button>
-<button class="saveBtn" onclick="save()">💾 Save</button>
-
-<div class="calc" id="calc"></div>
 
 <div id="popup" class="popup" style="display:none;">
     <p><b>Unsaved changes!</b></p>
@@ -149,15 +83,10 @@ h2 { text-align:center; color: #333; margin-bottom: 20px; }
     <button class="discard" onclick="discard()">Discard</button>
 </div>
 
-<!-- ✅ FIXED FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import { getFirestore, doc, getDoc, setDoc }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-import { getAuth, onAuthStateChanged }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
@@ -171,15 +100,21 @@ const auth = getAuth(app);
 
 let list = [];
 let changed = false;
+let currentUid = null;
 const today = new Date().toISOString().split("T")[0];
 
 onAuthStateChanged(auth, (user) => {
-  if (user) load();
-  else window.location.href = "index.html";
+  if (user) {
+      currentUid = user.uid;
+      load();
+  } else {
+      window.location.href = "index.html";
+  }
 });
 
+// ✅ KEY CHANGE: Data is now stored under the user's specific UID
 async function load(){
-    const snap = await getDoc(doc(db, "daily", today));
+    const snap = await getDoc(doc(db, "users", currentUid, "daily", today));
     if(snap.exists()) list = snap.data().list || [];
     render();
 }
@@ -198,12 +133,14 @@ window.undo = () => { list.pop(); changed = true; render(); };
 window.removeItem = (i) => { list.splice(i,1); changed = true; render(); };
 
 window.save = async () => {
-    await setDoc(doc(db, "daily", today), {
+    // ✅ SAVES TO USER SPECIFIC PATH
+    await setDoc(doc(db, "users", currentUid, "daily", today), {
+        date: today,
         list,
         total: list.reduce((a,b)=>a+b,0)
     });
     changed = false;
-    alert("Saved!");
+    alert("Saved successfully!");
 };
 
 window.goBack = () => {
@@ -218,7 +155,7 @@ function render(){
     let total = list.reduce((a,b)=>a+b,0);
     let html = list.map((n,i)=>`<div class="item" ondblclick="removeItem(${i})">${n}</div>`).join('');
     document.getElementById("calc").innerHTML =
-        list.length ? html + `<div class="line"></div><b>₹${total}</b>` : "No work";
+        list.length ? html + `<div class="line"></div><b style="color:var(--primary)">₹${total}</b>` : "No work logged";
 }
 </script>
 

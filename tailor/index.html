@@ -7,102 +7,53 @@
   <link rel="apple-touch-icon" href="images/tailor.png">
   <meta name="theme-color" content="#007bff">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tailor Admin - Dashboard</title>
+  <title>Tailor Dashboard</title>
   
   <style>
-    :root {
-      --primary: #667eea;
-      --bg: #f8f9fa;
-      --text: #2d3436;
-    }
-    
+    :root { --primary: #667eea; --bg: #f8f9fa; --text: #2d3436; }
     body { 
       font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-      background: var(--bg); 
-      margin: 0; 
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-      box-sizing: border-box;
+      background: var(--bg); margin: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; min-height: 100vh; padding: 20px; box-sizing: border-box;
     }
-
-    .container {
-      width: 100%;
-      max-width: 400px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    h1 { color: var(--text); margin-bottom: 10px; font-size: 24px; }
-    
+    .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
+    h1 { color: var(--text); margin-bottom: 10px; font-size: 24px; text-align: center; }
     .status-card {
-        background: white;
-        padding: 25px;
-        border-radius: 24px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-        text-align: center;
-        margin-bottom: 10px;
+        background: white; padding: 25px; border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04); text-align: center; margin-bottom: 10px;
     }
     .status-card h2 { margin: 0; color: #b2bec3; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; }
     .status-card .amt { font-size: 42px; font-weight: 800; color: var(--primary); margin: 8px 0; }
     #syncStatus { font-size: 11px; font-weight: bold; }
-
     .main-btn {
-        width: 100%;
-        padding: 20px;
-        font-size: 18px;
-        font-weight: 600;
-        border: none;
-        border-radius: 18px;
-        cursor: pointer;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        width: 100%; padding: 20px; font-size: 18px; font-weight: 600; border: none;
+        border-radius: 18px; cursor: pointer; color: white; display: flex;
+        align-items: center; justify-content: center; gap: 12px; transition: all 0.3s ease;
     }
-    
     .main-btn:active { transform: scale(0.96); opacity: 0.9; }
-
     .btn-daily { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
     .btn-cust { background: linear-gradient(135deg, #009efd 0%, #2af598 100%); }
     .btn-summ { background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%); }
-
-    .home-link { margin-top: 20px; color: #b2bec3; text-decoration: none; font-size: 14px; font-weight: 500; }
-    .home-link:hover { color: var(--text); }
+    .home-link { margin-top: 20px; color: #b2bec3; text-decoration: none; font-size: 14px; font-weight: 500; text-align: center; display: block; }
   </style>
 </head>
 
 <body>
 
 <div class="container">
-    <h1>Dashboard</h1>
+    <h1 id="welcome">Dashboard</h1>
 
     <div class="status-card">
         <h2>Today's Earnings</h2>
         <div class="amt" id="liveTotal">₹0</div>
-        <div id="syncStatus" style="color:#00b894">● Live Sync Active</div>
+        <div id="syncStatus" style="color:#00b894">● Secure Connection</div>
     </div>
 
-    <button class="main-btn btn-daily" onclick="go('daily.html')">
-        <span>📋</span> Daily Work
-    </button>
+    <button class="main-btn btn-daily" onclick="go('daily.html')"><span>📋</span> Daily Work</button>
+    <button class="main-btn btn-cust" onclick="go('customers.html')"><span>👥</span> Customers</button>
+    <button class="main-btn btn-summ" onclick="go('summary.html')"><span>📊</span> Summary</button>
 
-    <button class="main-btn btn-cust" onclick="go('customers.html')">
-        <span>👥</span> Customers
-    </button>
-
-    <button class="main-btn btn-summ" onclick="go('summary.html')">
-        <span>📊</span> Summary
-    </button>
-
-    <a href="../index.html" class="home-link">⬅ Exit Admin Mode</a>
+    <a href="../index.html" class="home-link">⬅ Logout</a>
 </div>
 
 <script type="module">
@@ -126,11 +77,19 @@ function getLocalDate() {
 }
 
 onAuthStateChanged(auth, (user) => {
-  if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
+  if (!user) {
     window.location.href = "../index.html";
   } else {
+    // PERSONALIZED DATA PATH
     const today = getLocalDate();
-    onSnapshot(doc(db, "daily", today), (doc) => {
+    const userDocPath = `users/${user.uid}/daily/${today}`;
+    
+    // Change Title if Admin
+    if(user.uid === "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
+        document.getElementById("welcome").innerText = "Admin Panel";
+    }
+
+    onSnapshot(doc(db, userDocPath), (doc) => {
         const data = doc.data();
         document.getElementById("liveTotal").innerText = data ? "₹" + (data.total || 0) : "₹0";
     }, (error) => {
@@ -142,11 +101,5 @@ onAuthStateChanged(auth, (user) => {
 </script>
 
 <script src="script.js"></script>
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js');
-}
-</script>
-
 </body>
 </html>
