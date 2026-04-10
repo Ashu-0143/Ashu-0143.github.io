@@ -10,59 +10,143 @@
 <title>Work App - Summary</title>
 
 <style>
-    :root { --primary: #007bff; --success: #28a745; --gray: #f4f6f9; }
-    body { font-family: 'Segoe UI', Arial; background: var(--gray); padding: 15px; margin: 0; }
+    :root { 
+        --primary: #667eea; 
+        --success: #2af598; 
+        --bg: #f8f9fa; 
+        --card-shadow: rgba(0, 0, 0, 0.04);
+    }
     
-    .nav-header { display: flex; align-items: center; margin-bottom: 20px; }
-    .back { background: #444; color: white; padding: 10px 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
-    h2 { flex: 1; text-align: center; margin: 0; font-size: 20px; color: #333; }
+    body { 
+        font-family: 'Segoe UI', Roboto, Arial, sans-serif; 
+        background: var(--bg); 
+        margin: 0; 
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+        box-sizing: border-box;
+    }
 
-    .filters { display: flex; gap: 8px; margin-bottom: 20px; }
-    .filters button { flex: 1; padding: 12px; border: none; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
+    .container {
+        width: 100%;
+        max-width: 420px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .nav-header { 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between;
+        margin-bottom: 25px; 
+    }
+    
+    .back { 
+        background: white; 
+        color: #636e72; 
+        padding: 10px 18px; 
+        border: none; 
+        border-radius: 12px; 
+        cursor: pointer; 
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 4px 10px var(--card-shadow);
+    }
+    
+    h2 { margin: 0; font-size: 22px; color: #2d3436; }
+
+    .filters { display: flex; gap: 10px; margin-bottom: 25px; }
+    .filters button { 
+        flex: 1; 
+        padding: 14px; 
+        border: none; 
+        border-radius: 16px; 
+        color: white; 
+        font-weight: 600; 
+        font-size: 13px; 
+        cursor: pointer; 
+        transition: 0.2s;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
     .filters button:active { transform: scale(0.95); }
-    .today { background: var(--primary); }
-    .yest { background: #6c757d; }
-    .month { background: var(--success); }
+    .today { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .yest { background: #636e72; }
+    .month { background: linear-gradient(135deg, #009efd 0%, #2af598 100%); }
 
     .totalCard {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        color: white; padding: 30px; border-radius: 20px; text-align: center;
-        box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        background: white;
+        padding: 35px 20px; 
+        border-radius: 28px; 
+        text-align: center;
+        box-shadow: 0 10px 30px var(--card-shadow);
+        margin-bottom: 25px;
     }
-    .totalCard small { display: block; font-size: 14px; opacity: 0.8; margin-bottom: 5px; }
-    .totalCard div { font-size: 38px; font-weight: bold; }
+    .totalCard small { 
+        display: block; 
+        font-size: 12px; 
+        color: #b2bec3; 
+        text-transform: uppercase; 
+        letter-spacing: 1.2px;
+        margin-bottom: 8px;
+    }
+    .totalCard div { font-size: 42px; font-weight: 800; color: #2d3436; }
 
-    .barWrap { margin-top: 25px; background: white; padding: 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    .barRow { margin: 15px 0; cursor: pointer; }
-    .barLabel { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; color: #666; }
-    .bar { height: 18px; background: #eee; border-radius: 10px; overflow: hidden; }
-    .fill { height: 100%; background: var(--success); transition: width 0.5s ease-in-out; }
+    .barWrap { 
+        background: white; 
+        padding: 20px; 
+        border-radius: 28px; 
+        box-shadow: 0 10px 30px var(--card-shadow);
+    }
     
-    .admin-hint { text-align: center; font-size: 11px; color: #999; margin-top: 10px; }
+    .barRow { margin-bottom: 20px; cursor: pointer; }
+    .barRow:last-child { margin-bottom: 0; }
+    
+    .barLabel { 
+        display: flex; 
+        justify-content: space-between; 
+        font-size: 13px; 
+        font-weight: 600;
+        margin-bottom: 8px; 
+        color: #2d3436; 
+    }
+    .barLabel span { color: #636e72; font-weight: 400; }
+    
+    .bar { height: 10px; background: #f1f3f5; border-radius: 10px; overflow: hidden; }
+    .fill { 
+        height: 100%; 
+        background: linear-gradient(90deg, #667eea, #764ba2); 
+        border-radius: 10px;
+        transition: width 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); 
+    }
+    
+    .admin-hint { text-align: center; font-size: 11px; color: #b2bec3; margin-top: 20px; }
 </style>
 </head>
 
 <body>
 
-<div class="nav-header">
-    <button class="back" onclick="goBack()">⬅ Back</button>
-    <h2>Insights</h2>
-    <div style="width:65px"></div>
-</div>
+<div class="container">
+    <div class="nav-header">
+        <button class="back" onclick="goBack()">⬅ Back</button>
+        <h2>Summary</h2>
+        <div style="width:70px"></div>
+    </div>
 
-<div class="filters">
-    <button class="today" onclick="loadData('today')">Today</button>
-    <button class="yest" onclick="loadData('yesterday')">Yesterday</button>
-    <button class="month" onclick="loadData('month')">Month</button>
-</div>
+    <div class="filters">
+        <button class="today" onclick="loadData('today')">Today</button>
+        <button class="yest" onclick="loadData('yesterday')">Yesterday</button>
+        <button class="month" onclick="loadData('month')">Month</button>
+    </div>
 
-<div class="totalCard">
-    <small id="periodLabel">Earnings Overview</small>
-    <div id="total">₹0</div>
-</div>
+    <div class="totalCard">
+        <small id="periodLabel">Earnings Overview</small>
+        <div id="total">₹0</div>
+    </div>
 
-<div class="barWrap" id="bars"></div>
-<p class="admin-hint">Tip: Double-tap a bar to edit amount</p>
+    <div class="barWrap" id="bars"></div>
+    <p class="admin-hint">Tip: Double-tap a bar to edit records</p>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -99,19 +183,17 @@ function formatDate(d){
   return new Date(d).toLocaleDateString("en-IN",{day:"numeric",month:"short"});
 }
 
-// ADMIN FEATURE: Manual Amount Override
 window.manualEdit = async function(date, current) {
-    let newAmt = prompt(`Edit amount for ${formatDate(date)}:`, current);
-    if (newAmt === null) return;
+    let newAmt = prompt(`Update amount for ${formatDate(date)}:`, current);
+    if (newAmt === null || newAmt === "") return;
     
     let total = parseInt(newAmt) || 0;
     await setDoc(doc(db, "daily", date), { date, total }, { merge: true });
-    alert("Updated!");
-    location.reload(); 
+    loadData("month"); 
 };
 
 window.loadData = async function(type){
-  document.getElementById("periodLabel").innerText = type.toUpperCase();
+  document.getElementById("periodLabel").innerText = type;
   const snap = await getDocs(collection(db,"daily"));
   let map = {};
   snap.forEach(doc => {
@@ -132,10 +214,11 @@ window.loadData = async function(type){
       let d = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
       if(map[d]) days.push({date:d, total:map[d]});
     }
+    days.reverse(); // Newest dates at the top
   }
 
   let totalEarnings = days.reduce((a,b)=>a+b.total,0);
-  document.getElementById("total").innerText="₹" + totalEarnings;
+  document.getElementById("total").innerText="₹" + totalEarnings.toLocaleString('en-IN');
 
   let max = Math.max(...days.map(d=>d.total), 1);
   let html = "";
@@ -146,7 +229,7 @@ window.loadData = async function(type){
     <div class="barRow" ondblclick="manualEdit('${d.date}', ${d.total})">
       <div class="barLabel">
         <span>${formatDate(d.date)}</span>
-        <b>₹${d.total}</b>
+        <b>₹${d.total.toLocaleString('en-IN')}</b>
       </div>
       <div class="bar">
         <div class="fill" style="width:${w}%"></div>
@@ -154,7 +237,7 @@ window.loadData = async function(type){
     </div>`;
   });
 
-  document.getElementById("bars").innerHTML = html || "<p style='text-align:center; padding:20px; color:#999;'>No records found</p>";
+  document.getElementById("bars").innerHTML = html || "<p style='text-align:center; padding:20px; color:#b2bec3;'>No entries found</p>";
 };
 </script>
 </body>
