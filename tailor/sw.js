@@ -1,4 +1,4 @@
-const CACHE_NAME = "tailor-cache-v5";
+const CACHE_NAME = "tailor-cache-v6";
 const urlsToCache = [
   "./",
   "./index.html",
@@ -25,15 +25,15 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   const url = e.request.url;
 
-  // ✅ IMPROVED: If it's Firebase or Google, just let the browser handle it
-  if (url.includes("firebase") || url.includes("gstatic") || url.includes("googleapis")) {
-    return; // Don't call e.respondWith, let it fall through to the browser
+  // ✅ THE FIX: If the URL contains Google or Firebase, do NOT intercept it.
+  // This prevents the "error loading dynamically imported module" crash.
+  if (url.includes("gstatic.com") || url.includes("googleapis.com") || url.includes("firebase")) {
+    return; // Let the browser handle it naturally
   }
 
   e.respondWith(
     caches.match(e.request).then(res => {
       return res || fetch(e.request);
-    }).catch(() => fetch(e.request)) // Fallback to network if cache fails
+    })
   );
 });
-

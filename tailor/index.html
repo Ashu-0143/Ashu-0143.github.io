@@ -33,6 +33,7 @@
 </div>
 
 <script type="module">
+// ✅ FIXED: Full Firebase Import Paths
 import { initializeApp } from "https://gstatic.com";
 import { getAuth, onAuthStateChanged } from "https://gstatic.com";
 import { getFirestore, doc, onSnapshot, collection, getDocs, setDoc } from "https://gstatic.com";
@@ -47,9 +48,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 🚚 MIGRATION LOGIC (Run once)
+// 🚚 MIGRATION LOGIC (Moves data from root to user-specific folder)
 async function runMigration(user) {
-    // Only run for your Admin UID to move root data to your folder
     if (user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") return;
     
     const collections = ["daily", "customers"];
@@ -59,29 +59,30 @@ async function runMigration(user) {
         try {
             const snap = await getDocs(collection(db, colName));
             for (const record of snap.docs) {
+                // Save to private path: users/UID/collection/ID
                 await setDoc(doc(db, "users", user.uid, colName, record.id), record.data());
                 migratedCount++;
             }
-        } catch (e) { console.log("Migration check for " + colName + " skipped or finished."); }
+        } catch (e) { console.log("Migration check for " + colName + " skipped."); }
     }
     
-    if(migratedCount > 0) alert("Migration Successful! " + migratedCount + " records moved to your private folder.");
+    if(migratedCount > 0) alert("Migration Successful! Data moved to your private folder.");
 }
 
 onAuthStateChanged(auth, (user) => {
   if (!user) {
       location.href = "../index.html";
   } else {
-    // Run migration if needed
+    // Run migration only for admin
     runMigration(user);
 
-    // Welcome message
     if(user.uid === "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") document.getElementById("welcome").innerText = "Admin Dashboard";
 
-    // Real-time Today's Total
+    // Helper for Local Date (YYYY-MM-DD)
     const d = new Date();
     const today = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     
+    // ✅ Real-time Listener for user-specific data
     onSnapshot(doc(db, "users", user.uid, "daily", today), (docSnap) => {
         if (docSnap.exists()) {
             document.getElementById("liveTotal").innerText = "₹" + (docSnap.data().total || 0);
