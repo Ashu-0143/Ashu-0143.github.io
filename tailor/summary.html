@@ -132,11 +132,16 @@ window.speak = function(text) {
 };
 
 // 📅 HELPERS
-function getDate(offset=0){
-  let d = new Date();
-  d.setDate(d.getDate()+offset);
-  return d.toISOString().split("T")[0];
+function getDate(offset = 0) {
+    let d = new Date();
+    d.setDate(d.getDate() + offset);
+    // This ensures we get YYYY-MM-DD in your local timezone, not UTC
+    let year = d.getFullYear();
+    let month = String(d.getMonth() + 1).padStart(2, '0');
+    let day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
+
 
 function formatDate(d){
   return new Date(d).toLocaleDateString("en-IN",{day:"numeric",month:"short"});
