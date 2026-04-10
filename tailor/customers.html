@@ -2,83 +2,90 @@
 <html>
 <head>
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- ✅ FIXED PATHS -->
- <link rel="apple-touch-icon" href="images/tailor.png">
 <link rel="manifest" href="manifest.json">
-<link rel="shortcut icon" href="tailor.png">
 <link rel="icon" href="images/tailor.png">
+<link rel="apple-touch-icon" href="images/tailor.png">
 <meta name="theme-color" content="#007bff">
 <title>Work App - Customers</title>
 
 <style>
-body { font-family: Arial; background:#f4f6f9; padding:15px; }
-h2 { text-align:center; }
+    :root {
+        --primary: #007bff;
+        --success: #28a745;
+        --danger: #dc3545;
+        --bg: #f4f6f9;
+        --card: #ffffff;
+    }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 15px; margin: 0; color: #333; }
+    
+    .nav-header { display: flex; align-items: center; margin-bottom: 20px; }
+    .back-btn { text-decoration: none; color: #444; font-weight: bold; background: #ddd; padding: 8px 15px; border-radius: 10px; font-size: 14px; }
+    h2 { flex: 1; text-align: center; margin: 0; font-size: 20px; }
 
-input {
-    width:100%;
-    padding:14px;
-    font-size:18px;
-    margin:8px 0;
-    border-radius:10px;
-    border:1px solid #ccc;
-}
+    .search-box { background: var(--card); padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    input {
+        width: 100%;
+        padding: 14px;
+        font-size: 16px;
+        margin: 8px 0;
+        border-radius: 10px;
+        border: 1px solid #eee;
+        box-sizing: border-box;
+        background: #fafafa;
+    }
+    input:focus { border-color: var(--primary); outline: none; background: #fff; }
 
-button {
-    width:100%;
-    padding:14px;
-    font-size:18px;
-    margin:6px 0;
-    border:none;
-    border-radius:12px;
-}
+    button { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; margin: 6px 0; border: none; border-radius: 12px; cursor: pointer; transition: 0.2s; }
+    button:active { transform: scale(0.98); }
 
-.searchBtn { background:#007bff; color:white; }
-.addBtn { background:#28a745; color:white; }
-.removeBtn { background:#dc3545; color:white; }
+    .searchBtn { background: var(--primary); color: white; }
+    .addBtn { background: var(--success); color: white; }
+    .removeBtn { background: var(--danger); color: white; }
 
-.entry {
-    padding:10px;
-    margin:6px 0;
-    border-radius:10px;
-    display:flex;
-    justify-content:space-between;
-}
+    /* Customer Profile Area */
+    .cust-card { background: var(--card); padding: 20px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); text-align: center; }
+    .balance-circle { width: 100px; height: 100px; border-radius: 50%; border: 4px solid #eee; display: flex; align-items: center; justify-content: center; margin: 15px auto; font-size: 18px; font-weight: bold; }
+    
+    .history-container { margin: 15px 0; max-height: 180px; overflow-y: auto; text-align: left; padding: 5px; border-top: 1px solid #f0f0f0; }
+    .entry {
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+    }
+    .add { background: #d4edda; color: #155724; }
+    .remove { background: #f8d7da; color: #721c24; }
 
-.add { background:#d4edda; }
-.remove { background:#f8d7da; }
-
-#custArea { margin-top:20px; }
+    #custArea { margin-top: 10px; }
 </style>
 </head>
 
 <body>
 
-<h2>Customer Ledger</h2>
+<div class="nav-header">
+    <a href="index.html" class="back-btn">⬅ Back</a>
+    <h2>Ledger</h2>
+    <div style="width:60px"></div> <!-- Spacer -->
+</div>
 
-<input id="search" placeholder="Phone or Name">
-
-<button class="searchBtn" onclick="loadCustomer()">🔍 Search</button>
+<div class="search-box">
+    <input id="search" type="tel" placeholder="Phone Number or Name">
+    <button class="searchBtn" onclick="loadCustomer()">🔍 Find Customer</button>
+</div>
 
 <div id="custArea"></div>
 
-<!-- ✅ FIXED FIREBASE -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-  getFirestore, doc, getDoc, setDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-import {
-  getAuth, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initializeApp } from "https://gstatic.com";
+import { getFirestore, doc, getDoc, setDoc } from "https://gstatic.com";
+import { getAuth, onAuthStateChanged } from "https://gstatic.com";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
-  authDomain: "ashu-0143.firebaseapp.com",
+  authDomain: "://firebaseapp.com",
   projectId: "ashu-0143"
 };
 
@@ -86,23 +93,15 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// ✅ AUTH CHECK
 onAuthStateChanged(auth, (user) => {
   if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
     window.location.href = "index.html";
   }
 });
 
-// LOCAL STORAGE
-function getLocal() {
-  return JSON.parse(localStorage.getItem("customers") || "{}");
-}
+function getLocal() { return JSON.parse(localStorage.getItem("customers") || "{}"); }
+function saveLocal(d) { localStorage.setItem("customers", JSON.stringify(d)); }
 
-function saveLocal(d) {
-  localStorage.setItem("customers", JSON.stringify(d));
-}
-
-// 🔍 SEARCH
 window.loadCustomer = async function() {
   let val = document.getElementById("search").value.trim();
   if (!val) return;
@@ -111,18 +110,11 @@ window.loadCustomer = async function() {
   let phone = val;
   let data = local[phone];
 
-  // search by name
   if (!data) {
-    let found = Object.keys(local).find(k =>
-      local[k].name?.toLowerCase() === val.toLowerCase()
-    );
-    if (found) {
-      phone = found;
-      data = local[found];
-    }
+    let found = Object.keys(local).find(k => local[k].name?.toLowerCase() === val.toLowerCase());
+    if (found) { phone = found; data = local[found]; }
   }
 
-  // fetch from firebase
   if (!data) {
     const snap = await getDoc(doc(db, "customers", val));
     if (snap.exists()) {
@@ -132,55 +124,55 @@ window.loadCustomer = async function() {
     }
   }
 
-  // new customer
   if (!data) {
-    let name = prompt("Enter Name:");
+    let name = prompt("New Customer Name:");
     if (!name) return;
-
     data = { name, history: [] };
     phone = val;
-
     local[phone] = data;
     saveLocal(local);
     await setDoc(doc(db, "customers", phone), data);
   }
-
   render(phone, data);
 };
 
-// 🧾 RENDER
 function render(phone, data) {
   let total = 0;
   let html = "";
-
   data.history.forEach(h => {
     total += h.amount;
     html += `
       <div class="entry ${h.amount > 0 ? 'add' : 'remove'}">
-        <span>${h.amount > 0 ? 'Received' : 'Pending'}</span>
-        <span>₹${Math.abs(h.amount)}</span>
+        <span>${h.amount > 0 ? 'Received' : 'Work Done'}</span>
+        <b>₹${Math.abs(h.amount)}</b>
       </div>
     `;
   });
 
   document.getElementById("custArea").innerHTML = `
-    <h3>${data.name}</h3>
-    <h2 style="color:${total>=0?'green':'red'}">₹${total}</h2>
+    <div class="cust-card">
+      <h3 style="margin:0; color:#666;">${data.name}</h3>
+      <div class="balance-circle" style="color:${total>=0?'#28a745':'#dc3545'}; border-color:${total>=0?'#d4edda':'#f8d7da'}">
+        ₹${total}
+      </div>
+      
+      <div class="history-container">
+        ${html || "<p style='text-align:center; color:#ccc'>No transaction history</p>"}
+      </div>
 
-    <div style="max-height:200px; overflow:auto;">
-      ${html || "No history"}
+      <input id="amount" type="number" placeholder="Enter Amount" inputmode="numeric">
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+          <button class="addBtn" onclick="update('${phone}',1)">➕ Paid</button>
+          <button class="removeBtn" onclick="update('${phone}',-1)">➖ Bill</button>
+      </div>
     </div>
-
-    <input id="amount" type="number" placeholder="Amount">
-
-    <button class="addBtn" onclick="update('${phone}',1)">➕ Received</button>
-    <button class="removeBtn" onclick="update('${phone}',-1)">➖ Work Done</button>
   `;
 }
 
-// ➕ UPDATE
 window.update = async function(phone, type) {
-  let amt = parseInt(document.getElementById("amount").value);
+  let amtEl = document.getElementById("amount");
+  let amt = parseInt(amtEl.value);
   if (!amt) return;
 
   let local = getLocal();
@@ -193,8 +185,8 @@ window.update = async function(phone, type) {
 
   saveLocal(local);
   await setDoc(doc(db, "customers", phone), d);
-
   render(phone, d);
+  amtEl.value = "";
 };
 </script>
 

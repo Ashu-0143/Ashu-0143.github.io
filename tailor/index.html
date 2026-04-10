@@ -7,47 +7,96 @@
   <link rel="apple-touch-icon" href="images/tailor.png">
   <meta name="theme-color" content="#007bff">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Work App - Dashboard</title>
+  <title>Tailor Admin - Dashboard</title>
   
   <style>
-    body { font-family: sans-serif; background: #8f8f8f; padding: 20px; text-align: center; }
-    h1 { color: #333; margin-bottom: 30px; }
+    :root {
+      --primary: #667eea;
+      --sec: #009efd;
+      --accent: #f5576c;
+      --bg: #f4f7f6;
+    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); padding: 20px; text-align: center; margin:0; }
+    h1 { color: #2d3436; margin-top: 30px; font-size: 28px; }
+    
+    /* Stats Card */
+    .status-card {
+        background: white;
+        padding: 20px;
+        border-radius: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+    .status-card h2 { margin: 0; color: #636e72; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+    .status-card .amt { font-size: 36px; font-weight: bold; color: var(--primary); margin: 5px 0; }
 
     .main-btn {
         width: 100%;
         max-width: 400px;
-        padding: 20px;
+        padding: 18px;
         margin: 10px 0;
-        font-size: 20px;
-        font-weight: bold;
+        font-size: 18px;
+        font-weight: 600;
         border: none;
         border-radius: 15px;
         cursor: pointer;
         color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        transition: transform 0.2s;
     }
+    .main-btn:active { transform: scale(0.98); }
 
-    .btn-daily { background: #667eea; }
-    .btn-cust { background: #009efd; }
-    .btn-summ { background: #f5576c; }
+    .btn-daily { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .btn-cust { background: linear-gradient(135deg, #009efd 0%, #2af598 100%); }
+    .btn-summ { background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%); }
 
-    .home-link { display: block; margin-top: 30px; color: #333; text-decoration: none; }
+    .home-link { display: inline-block; margin-top: 30px; color: #b2bec3; text-decoration: none; font-size: 14px; }
+    
+    /* Quick Action Button */
+    .fab {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: var(--primary);
+        color: white;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        font-size: 24px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
   </style>
 </head>
 
 <body>
 
-<h1>Dashboard</h1>
+<div class="status-card">
+    <h2>Today's Earnings</h2>
+    <div class="amt" id="liveTotal">₹--</div>
+    <small id="syncStatus" style="color:#00b894">● Connected</small>
+</div>
 
-<button class="main-btn btn-daily" onclick="go('daily.html')">📋 Daily Work</button>
-<button class="main-btn btn-cust" onclick="go('customers.html')">👥 Customers</button>
-<button class="main-btn btn-summ" onclick="go('summary.html')">📊 Summary</button>
+<button class="main-btn btn-daily" onclick="go('daily.html')">
+    <span>📋 Daily Work</span>
+</button>
 
-<a href="../index.html" class="home-link">⬅ Back</a>
+<button class="main-btn btn-cust" onclick="go('customers.html')">
+    <span>👥 Customers</span>
+</button>
 
-<!-- ✅ FIXED FIREBASE -->
+<button class="main-btn btn-summ" onclick="go('summary.html')">
+    <span>📊 Detailed Summary</span>
+</button>
+
+<a href="../index.html" class="home-link">⬅ Exit Admin Mode</a>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, onSnapshot } from "https://gstatic.com";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
@@ -57,17 +106,32 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Helper for local date
+function getLocalDate() {
+    let d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
 onAuthStateChanged(auth, (user) => {
   if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
     window.location.href = "../index.html";
+  } else {
+    // REAL-TIME TOTAL TRACKER
+    const today = getLocalDate();
+    onSnapshot(doc(db, "daily", today), (doc) => {
+        const data = doc.data();
+        document.getElementById("liveTotal").innerText = data ? "₹" + (data.total || 0) : "₹0";
+    }, (error) => {
+        document.getElementById("syncStatus").innerText = "○ Offline";
+        document.getElementById("syncStatus").style.color = "#d63031";
+    });
   }
 });
 </script>
 
 <script src="script.js"></script>
-
-<!-- ✅ SAFE SERVICE WORKER -->
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js');

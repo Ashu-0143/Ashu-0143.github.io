@@ -2,10 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- ✅ FIXED PATH -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#007bff">
 <link rel="icon" href="images/tailor.png">
@@ -13,68 +10,45 @@
 <title>Work App - Summary</title>
 
 <style>
-body { font-family: Arial; background:#f4f6f9; padding:15px; }
-h2 { text-align:center; }
+    :root { --primary: #007bff; --success: #28a745; --gray: #f4f6f9; }
+    body { font-family: 'Segoe UI', Arial; background: var(--gray); padding: 15px; margin: 0; }
+    
+    .nav-header { display: flex; align-items: center; margin-bottom: 20px; }
+    .back { background: #444; color: white; padding: 10px 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+    h2 { flex: 1; text-align: center; margin: 0; font-size: 20px; color: #333; }
 
-.filters { display:flex; gap:10px; margin-bottom:15px; }
-.filters button {
-    flex:1;
-    padding:12px;
-    border:none;
-    border-radius:10px;
-    color:white;
-    font-weight:bold;
-}
+    .filters { display: flex; gap: 8px; margin-bottom: 20px; }
+    .filters button { flex: 1; padding: 12px; border: none; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
+    .filters button:active { transform: scale(0.95); }
+    .today { background: var(--primary); }
+    .yest { background: #6c757d; }
+    .month { background: var(--success); }
 
-.today { background:#007bff; }
-.yest { background:#6c757d; }
-.month { background:#28a745; }
+    .totalCard {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white; padding: 30px; border-radius: 20px; text-align: center;
+        box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+    }
+    .totalCard small { display: block; font-size: 14px; opacity: 0.8; margin-bottom: 5px; }
+    .totalCard div { font-size: 38px; font-weight: bold; }
 
-.totalCard {
-    background:#4facfe;
-    color:white;
-    padding:25px;
-    border-radius:15px;
-    text-align:center;
-    font-size:32px;
-}
-
-.barWrap { margin-top:20px; }
-
-.barRow { margin:10px 0; cursor:pointer; }
-
-.bar {
-    height:25px;
-    background:#ddd;
-    border-radius:10px;
-    overflow:hidden;
-}
-
-.fill {
-    height:100%;
-    background:#28a745;
-    color:white;
-    text-align:right;
-    padding-right:10px;
-}
-
-.back {
-    background:#444;
-    color:white;
-    padding:12px;
-    width:100%;
-    border:none;
-    border-radius:10px;
-    margin-bottom:15px;
-}
+    .barWrap { margin-top: 25px; background: white; padding: 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .barRow { margin: 15px 0; cursor: pointer; }
+    .barLabel { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; color: #666; }
+    .bar { height: 18px; background: #eee; border-radius: 10px; overflow: hidden; }
+    .fill { height: 100%; background: var(--success); transition: width 0.5s ease-in-out; }
+    
+    .admin-hint { text-align: center; font-size: 11px; color: #999; margin-top: 10px; }
 </style>
 </head>
 
 <body>
 
-<button class="back" onclick="goBack()">⬅ Back</button>
-
-<h2>📊 Summary</h2>
+<div class="nav-header">
+    <button class="back" onclick="goBack()">⬅ Back</button>
+    <h2>Insights</h2>
+    <div style="width:65px"></div>
+</div>
 
 <div class="filters">
     <button class="today" onclick="loadData('today')">Today</button>
@@ -82,21 +56,18 @@ h2 { text-align:center; }
     <button class="month" onclick="loadData('month')">Month</button>
 </div>
 
-<div class="totalCard" id="total">₹0</div>
+<div class="totalCard">
+    <small id="periodLabel">Earnings Overview</small>
+    <div id="total">₹0</div>
+</div>
 
 <div class="barWrap" id="bars"></div>
+<p class="admin-hint">Tip: Double-tap a bar to manually set amount</p>
 
-<!-- ✅ FIXED FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-  getFirestore, collection, getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-import {
-  getAuth, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
@@ -110,7 +81,6 @@ const auth = getAuth(app);
 
 window.goBack = () => location.href = "index.html";
 
-// ✅ AUTH
 onAuthStateChanged(auth, (user) => {
   if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
     window.location.href = "index.html";
@@ -119,91 +89,252 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// 🔊 VOICE FIX (IMPORTANT)
-window.speak = function(text) {
-  // must be triggered after user interaction
+window.speak = (text) => {
   if (!window.speechSynthesis) return;
-
   const msg = new SpeechSynthesisUtterance(text);
   msg.lang = "en-IN";
-
-  speechSynthesis.cancel(); // stop previous
+  speechSynthesis.cancel();
   speechSynthesis.speak(msg);
 };
 
-// 📅 HELPERS
 function getDate(offset = 0) {
     let d = new Date();
     d.setDate(d.getDate() + offset);
-    // This ensures we get YYYY-MM-DD in your local timezone, not UTC
-    let year = d.getFullYear();
-    let month = String(d.getMonth() + 1).padStart(2, '0');
-    let day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
-
 
 function formatDate(d){
   return new Date(d).toLocaleDateString("en-IN",{day:"numeric",month:"short"});
 }
 
-// 📊 LOAD DATA
-window.loadData = async function(type){
-  const snap = await getDocs(collection(db,"daily"));
+// ADMIN FEATURE: Manual Amount Override
+window.manualEdit = async function(date, current) {
+    let newAmt = prompt(`Edit amount for ${formatDate(date)}:`, current);
+    if (newAmt === null) return;
+    
+    let total = parseInt(newAmt) || 0;
+    // Update Firebase
+    await setDoc(doc(db, "daily", date), { date, total }, { merge: true });
+    alert("Updated!");
+    location.reload(); 
+};
 
+window.loadData = async function(type){
+  document.getElementById("periodLabel").innerText = type.toUpperCase();
+  const snap = await getDocs(collection(db,"daily"));
   let map = {};
-  snap.forEach(doc=>{
+  snap.forEach(doc => {
     let d = doc.data();
-    map[d.date] = d.total || 0;
+    map[d.date || doc.id] = d.total || 0;
   });
 
   let days=[];
-  let today=getDate();
-  let yest=getDate(-1);
+  let today = getDate();
+  let yest = getDate(-1);
 
-  if(type==="today"){
-    days=[{date:today,total:map[today]||0}];
-  }
-  else if(type==="yesterday"){
-    days=[{date:yest,total:map[yest]||0}];
-  }
-  else{
-    let now=new Date();
-    let y=now.getFullYear();
-    let m=now.getMonth();
-    let last=new Date(y,m+1,0).getDate();
-
-    for(let i=1;i<=last;i++){
-      let d=new Date(y,m,i).toISOString().split("T")[0];
-      if(map[d]) days.push({date:d,total:map[d]});
+  if(type==="today") days=[{date:today, total:map[today]||0}];
+  else if(type==="yesterday") days=[{date:yest, total:map[yest]||0}];
+  else {
+    let now = new Date();
+    let last = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+    for(let i=1; i<=last; i++){
+      let d = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+      if(map[d]) days.push({date:d, total:map[d]});
     }
   }
 
-  // UI
-  let total=days.reduce((a,b)=>a+b.total,0);
-  document.getElementById("total").innerText="₹"+total;
+  let totalEarnings = days.reduce((a,b)=>a+b.total,0);
+  document.getElementById("total").innerText="₹" + totalEarnings;
 
-  let max=Math.max(...days.map(d=>d.total),1);
-
-  let html="";
-  days.forEach(d=>{
-    let w=(d.total/max)*100;
-
-    html+=`
-    <div class="barRow" onclick="speak('${formatDate(d.date)} ${d.total} rupees')">
-      <div>${formatDate(d.date)}</div>
+  let max = Math.max(...days.map(d=>d.total), 1);
+  let html = "";
+  
+  days.forEach(d => {
+    let w = (d.total/max)*100;
+    html += `
+    <div class="barRow" onclick="speak('${formatDate(d.date)} ${d.total} rupees')" ondblclick="manualEdit('${d.date}', ${d.total})">
+      <div class="barLabel">
+        <span>${formatDate(d.date)}</span>
+        <b>₹${d.total}</b>
+      </div>
       <div class="bar">
-        <div class="fill" style="width:${w}%">
-          ${d.total>0?'₹'+d.total:''}
-        </div>
+        <div class="fill" style="width:${w}%"></div>
       </div>
     </div>`;
   });
 
-  document.getElementById("bars").innerHTML =
-    html || "<p style='text-align:center'>No data</p>";
+  document.getElementById("bars").innerHTML = html || "<p style='text-align:center; padding:20px; color:#999;'>No records found</p>";
 };
 </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#007bff">
+<link rel="icon" href="images/tailor.png">
+<link rel="apple-touch-icon" href="images/tailor.png">
+<title>Work App - Summary</title>
 
+<style>
+    :root { --primary: #007bff; --success: #28a745; --gray: #f4f6f9; }
+    body { font-family: 'Segoe UI', Arial; background: var(--gray); padding: 15px; margin: 0; }
+    
+    .nav-header { display: flex; align-items: center; margin-bottom: 20px; }
+    .back { background: #444; color: white; padding: 10px 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+    h2 { flex: 1; text-align: center; margin: 0; font-size: 20px; color: #333; }
+
+    .filters { display: flex; gap: 8px; margin-bottom: 20px; }
+    .filters button { flex: 1; padding: 12px; border: none; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
+    .filters button:active { transform: scale(0.95); }
+    .today { background: var(--primary); }
+    .yest { background: #6c757d; }
+    .month { background: var(--success); }
+
+    .totalCard {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white; padding: 30px; border-radius: 20px; text-align: center;
+        box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+    }
+    .totalCard small { display: block; font-size: 14px; opacity: 0.8; margin-bottom: 5px; }
+    .totalCard div { font-size: 38px; font-weight: bold; }
+
+    .barWrap { margin-top: 25px; background: white; padding: 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .barRow { margin: 15px 0; cursor: pointer; }
+    .barLabel { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; color: #666; }
+    .bar { height: 18px; background: #eee; border-radius: 10px; overflow: hidden; }
+    .fill { height: 100%; background: var(--success); transition: width 0.5s ease-in-out; }
+    
+    .admin-hint { text-align: center; font-size: 11px; color: #999; margin-top: 10px; }
+</style>
+</head>
+
+<body>
+
+<div class="nav-header">
+    <button class="back" onclick="goBack()">⬅ Back</button>
+    <h2>Insights</h2>
+    <div style="width:65px"></div>
+</div>
+
+<div class="filters">
+    <button class="today" onclick="loadData('today')">Today</button>
+    <button class="yest" onclick="loadData('yesterday')">Yesterday</button>
+    <button class="month" onclick="loadData('month')">Month</button>
+</div>
+
+<div class="totalCard">
+    <small id="periodLabel">Earnings Overview</small>
+    <div id="total">₹0</div>
+</div>
+
+<div class="barWrap" id="bars"></div>
+<p class="admin-hint">Tip: Double-tap a bar to manually set amount</p>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
+  authDomain: "ashu-0143.firebaseapp.com",
+  projectId: "ashu-0143"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+window.goBack = () => location.href = "index.html";
+
+onAuthStateChanged(auth, (user) => {
+  if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
+    window.location.href = "index.html";
+  } else {
+    loadData("today");
+  }
+});
+
+window.speak = (text) => {
+  if (!window.speechSynthesis) return;
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = "en-IN";
+  speechSynthesis.cancel();
+  speechSynthesis.speak(msg);
+};
+
+function getDate(offset = 0) {
+    let d = new Date();
+    d.setDate(d.getDate() + offset);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function formatDate(d){
+  return new Date(d).toLocaleDateString("en-IN",{day:"numeric",month:"short"});
+}
+
+// ADMIN FEATURE: Manual Amount Override
+window.manualEdit = async function(date, current) {
+    let newAmt = prompt(`Edit amount for ${formatDate(date)}:`, current);
+    if (newAmt === null) return;
+    
+    let total = parseInt(newAmt) || 0;
+    // Update Firebase
+    await setDoc(doc(db, "daily", date), { date, total }, { merge: true });
+    alert("Updated!");
+    location.reload(); 
+};
+
+window.loadData = async function(type){
+  document.getElementById("periodLabel").innerText = type.toUpperCase();
+  const snap = await getDocs(collection(db,"daily"));
+  let map = {};
+  snap.forEach(doc => {
+    let d = doc.data();
+    map[d.date || doc.id] = d.total || 0;
+  });
+
+  let days=[];
+  let today = getDate();
+  let yest = getDate(-1);
+
+  if(type==="today") days=[{date:today, total:map[today]||0}];
+  else if(type==="yesterday") days=[{date:yest, total:map[yest]||0}];
+  else {
+    let now = new Date();
+    let last = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+    for(let i=1; i<=last; i++){
+      let d = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+      if(map[d]) days.push({date:d, total:map[d]});
+    }
+  }
+
+  let totalEarnings = days.reduce((a,b)=>a+b.total,0);
+  document.getElementById("total").innerText="₹" + totalEarnings;
+
+  let max = Math.max(...days.map(d=>d.total), 1);
+  let html = "";
+  
+  days.forEach(d => {
+    let w = (d.total/max)*100;
+    html += `
+    <div class="barRow" onclick="speak('${formatDate(d.date)} ${d.total} rupees')" ondblclick="manualEdit('${d.date}', ${d.total})">
+      <div class="barLabel">
+        <span>${formatDate(d.date)}</span>
+        <b>₹${d.total}</b>
+      </div>
+      <div class="bar">
+        <div class="fill" style="width:${w}%"></div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById("bars").innerHTML = html || "<p style='text-align:center; padding:20px; color:#999;'>No records found</p>";
+};
+</script>
 </body>
 </html>
