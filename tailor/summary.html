@@ -144,7 +144,7 @@
         <div id="total">₹0</div>
     </div>
 
-    <div class="barWrap" id="bars"></div>
+    <div id="barsArea" class="barWrap"></div>
     <p class="admin-hint">Tip: Double-tap a bar to edit records</p>
 </div>
 
@@ -171,8 +171,7 @@ onAuthStateChanged(auth, (user) => {
     window.location.href = "index.html";
   } else {
     currentUid = user.uid;
-    // Visual check for Admin
-    if(user.uid === "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") document.getElementById("title").innerText = "Admin Summary";
+    if(user.uid === "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") document.getElementById("title").innerText = "Admin Panel";
     loadData("today");
   }
 });
@@ -192,16 +191,16 @@ window.manualEdit = async function(date, current) {
     if (newAmt === null || newAmt === "") return;
     
     let total = parseInt(newAmt) || 0;
-    // Save to user-specific path
+    // Save to multi-user path
     await setDoc(doc(db, "users", currentUid, "daily", date), { date, total }, { merge: true });
+    alert("Updated!");
     loadData("month"); 
 };
 
 window.loadData = async function(type){
   if(!currentUid) return;
-  document.getElementById("periodLabel").innerText = type;
+  document.getElementById("periodLabel").innerText = type.toUpperCase();
   
-  // Fetch from user-specific collection
   const snap = await getDocs(collection(db, "users", currentUid, "daily"));
   let map = {};
   snap.forEach(doc => {
@@ -217,9 +216,12 @@ window.loadData = async function(type){
   else if(type==="yesterday") days=[{date:yest, total:map[yest]||0}];
   else {
     let now = new Date();
-    let last = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+    let y = now.getFullYear();
+    let m = now.getMonth();
+    let last = new Date(y, m + 1, 0).getDate();
+
     for(let i=1; i<=last; i++){
-      let d = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+      let d = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
       if(map[d]) days.push({date:d, total:map[d]});
     }
     days.reverse(); 
@@ -245,7 +247,7 @@ window.loadData = async function(type){
     </div>`;
   });
 
-  document.getElementById("bars").innerHTML = html || "<p style='text-align:center; padding:20px; color:#b2bec3;'>No entries found</p>";
+  document.getElementById("barsArea").innerHTML = html || "<p style='text-align:center; color:#b2bec3; padding:20px;'>No records found</p>";
 };
 </script>
 </body>

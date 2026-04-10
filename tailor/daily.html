@@ -101,7 +101,17 @@ const auth = getAuth(app);
 let list = [];
 let changed = false;
 let currentUid = null;
-const today = new Date().toISOString().split("T")[0];
+
+// Helper to get local date instead of UTC
+function getLocalDate() {
+    let d = new Date();
+    let year = d.getFullYear();
+    let month = String(d.getMonth() + 1).padStart(2, '0');
+    let day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+const today = getLocalDate();
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -112,7 +122,6 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// ✅ KEY CHANGE: Data is now stored under the user's specific UID
 async function load(){
     const snap = await getDoc(doc(db, "users", currentUid, "daily", today));
     if(snap.exists()) list = snap.data().list || [];
@@ -133,7 +142,6 @@ window.undo = () => { list.pop(); changed = true; render(); };
 window.removeItem = (i) => { list.splice(i,1); changed = true; render(); };
 
 window.save = async () => {
-    // ✅ SAVES TO USER SPECIFIC PATH
     await setDoc(doc(db, "users", currentUid, "daily", today), {
         date: today,
         list,
