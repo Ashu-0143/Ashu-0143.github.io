@@ -1,105 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="shortcut icon" href="../favicons/tailor.ico">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="images/tailor.png">
-  <link rel="apple-touch-icon" href="images/tailor.png">
-  <meta name="theme-color" content="#007bff">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tailor Dashboard</title>
-  
   <style>
     :root { --primary: #667eea; --bg: #f8f9fa; --text: #2d3436; }
-    body { 
-      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-      background: var(--bg); margin: 0; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; min-height: 100vh; padding: 20px; box-sizing: border-box;
-    }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; box-sizing: border-box; }
     .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
-    h1 { color: var(--text); margin-bottom: 10px; font-size: 24px; text-align: center; }
-    .status-card {
-        background: white; padding: 25px; border-radius: 24px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.04); text-align: center; margin-bottom: 10px;
-    }
-    .status-card h2 { margin: 0; color: #b2bec3; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; }
+    .status-card { background: white; padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); text-align: center; }
     .status-card .amt { font-size: 42px; font-weight: 800; color: var(--primary); margin: 8px 0; }
-    #syncStatus { font-size: 11px; font-weight: bold; }
-    .main-btn {
-        width: 100%; padding: 20px; font-size: 18px; font-weight: 600; border: none;
-        border-radius: 18px; cursor: pointer; color: white; display: flex;
-        align-items: center; justify-content: center; gap: 12px; transition: all 0.3s ease;
-    }
-    .main-btn:active { transform: scale(0.96); opacity: 0.9; }
-    .btn-daily { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    .btn-cust { background: linear-gradient(135deg, #009efd 0%, #2af598 100%); }
-    .btn-summ { background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%); }
-    .home-link { margin-top: 20px; color: #b2bec3; text-decoration: none; font-size: 14px; font-weight: 500; text-align: center; display: block; }
+    .main-btn { width: 100%; padding: 20px; font-size: 18px; font-weight: 600; border: none; border-radius: 18px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 12px; transition: 0.2s; }
+    .main-btn:active { transform: scale(0.98); }
+    .btn-daily { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .btn-cust { background: linear-gradient(135deg, #009efd, #2af598); }
+    .btn-summ { background: linear-gradient(135deg, #f5576c, #f093fb); }
+    h1 { color: var(--text); margin-bottom: 10px; font-size: 24px; text-align: center; }
   </style>
 </head>
-
 <body>
-
 <div class="container">
     <h1 id="welcome">Dashboard</h1>
-
     <div class="status-card">
         <h2>Today's Earnings</h2>
         <div class="amt" id="liveTotal">₹0</div>
-        <div id="syncStatus" style="color:#00b894">● Secure Connection</div>
+        <small id="syncStatus">● Connected</small>
     </div>
-
-    <button class="main-btn btn-daily" onclick="go('daily.html')"><span>📋</span> Daily Work</button>
-    <button class="main-btn btn-cust" onclick="go('customers.html')"><span>👥</span> Customers</button>
-    <button class="main-btn btn-summ" onclick="go('summary.html')"><span>📊</span> Summary</button>
-
-    <a href="../index.html" class="home-link">⬅ Logout</a>
+    <button class="main-btn btn-daily" onclick="location.href='daily.html'">📋 Daily Work</button>
+    <button class="main-btn btn-cust" onclick="location.href='customers.html'">👥 Customers</button>
+    <button class="main-btn btn-summ" onclick="location.href='summary.html'">📊 Summary</button>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, onSnapshot } from "https://gstatic.com";
+import { initializeApp } from "https://gstatic.com";
+import { getAuth, onAuthStateChanged } from "https://gstatic.com";
+import { getFirestore, doc, onSnapshot, collection, getDocs, setDoc } from "https://gstatic.com";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4",
-  authDomain: "ashu-0143.firebaseapp.com",
-  projectId: "ashu-0143"
+const firebaseConfig = { 
+    apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4", 
+    authDomain: "ashu-0143.firebaseapp.com", 
+    projectId: "ashu-0143" 
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-function getLocalDate() {
-    let d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+// 🚚 MIGRATION LOGIC (Run once)
+async function runMigration(user) {
+    // Only run for your Admin UID to move root data to your folder
+    if (user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") return;
+    
+    const collections = ["daily", "customers"];
+    let migratedCount = 0;
+
+    for (const colName of collections) {
+        try {
+            const snap = await getDocs(collection(db, colName));
+            for (const record of snap.docs) {
+                await setDoc(doc(db, "users", user.uid, colName, record.id), record.data());
+                migratedCount++;
+            }
+        } catch (e) { console.log("Migration check for " + colName + " skipped or finished."); }
+    }
+    
+    if(migratedCount > 0) alert("Migration Successful! " + migratedCount + " records moved to your private folder.");
 }
 
 onAuthStateChanged(auth, (user) => {
   if (!user) {
-    window.location.href = "../index.html";
+      location.href = "../index.html";
   } else {
-    // PERSONALIZED DATA PATH
-    const today = getLocalDate();
-    const userDocPath = `users/${user.uid}/daily/${today}`;
-    
-    // Change Title if Admin
-    if(user.uid === "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
-        document.getElementById("welcome").innerText = "Admin Panel";
-    }
+    // Run migration if needed
+    runMigration(user);
 
-    onSnapshot(doc(db, userDocPath), (doc) => {
-        const data = doc.data();
-        document.getElementById("liveTotal").innerText = data ? "₹" + (data.total || 0) : "₹0";
-    }, (error) => {
-        document.getElementById("syncStatus").innerText = "○ Offline Mode";
-        document.getElementById("syncStatus").style.color = "#d63031";
+    // Welcome message
+    if(user.uid === "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") document.getElementById("welcome").innerText = "Admin Dashboard";
+
+    // Real-time Today's Total
+    const d = new Date();
+    const today = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    
+    onSnapshot(doc(db, "users", user.uid, "daily", today), (docSnap) => {
+        if (docSnap.exists()) {
+            document.getElementById("liveTotal").innerText = "₹" + (docSnap.data().total || 0);
+        } else {
+            document.getElementById("liveTotal").innerText = "₹0";
+        }
     });
   }
 });
 </script>
-
-<script src="script.js"></script>
 </body>
 </html>
