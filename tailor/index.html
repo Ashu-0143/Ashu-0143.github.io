@@ -12,86 +12,98 @@
   <style>
     :root {
       --primary: #667eea;
-      --sec: #009efd;
-      --accent: #f5576c;
-      --bg: #f4f7f6;
+      --bg: #f8f9fa;
+      --text: #2d3436;
     }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); padding: 20px; text-align: center; margin:0; }
-    h1 { color: #2d3436; margin-top: 30px; font-size: 28px; }
     
-    /* Stats Card */
+    body { 
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+      background: var(--bg); 
+      margin: 0; 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    h1 { color: var(--text); margin-bottom: 10px; font-size: 24px; }
+    
     .status-card {
         background: white;
-        padding: 20px;
-        border-radius: 20px;
-        margin-bottom: 25px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        padding: 25px;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        text-align: center;
+        margin-bottom: 10px;
     }
-    .status-card h2 { margin: 0; color: #636e72; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
-    .status-card .amt { font-size: 36px; font-weight: bold; color: var(--primary); margin: 5px 0; }
+    .status-card h2 { margin: 0; color: #b2bec3; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; }
+    .status-card .amt { font-size: 42px; font-weight: 800; color: var(--primary); margin: 8px 0; }
+    #syncStatus { font-size: 11px; font-weight: bold; }
 
     .main-btn {
         width: 100%;
-        max-width: 400px;
-        padding: 18px;
-        margin: 10px 0;
+        padding: 20px;
         font-size: 18px;
         font-weight: 600;
         border: none;
-        border-radius: 15px;
+        border-radius: 18px;
         cursor: pointer;
         color: white;
         display: flex;
         align-items: center;
-        justify-content: space-evenly;
-        transition: transform 0.2s;
+        justify-content: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    .main-btn:active { transform: scale(0.98); }
+    
+    .main-btn:active { transform: scale(0.96); opacity: 0.9; }
 
     .btn-daily { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
     .btn-cust { background: linear-gradient(135deg, #009efd 0%, #2af598 100%); }
     .btn-summ { background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%); }
 
-    .home-link { display: inline-block; margin-top: 30px; color: #b2bec3; text-decoration: none; font-size: 14px; }
-    
-    /* Quick Action Button */
-    .fab {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: var(--primary);
-        color: white;
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        font-size: 24px;
-        border: none;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
+    .home-link { margin-top: 20px; color: #b2bec3; text-decoration: none; font-size: 14px; font-weight: 500; }
+    .home-link:hover { color: var(--text); }
   </style>
 </head>
 
 <body>
 
-<div class="status-card">
-    <h2>Today's Earnings</h2>
-    <div class="amt" id="liveTotal">₹--</div>
-    <small id="syncStatus" style="color:#00b894">● Connected</small>
+<div class="container">
+    <h1>Dashboard</h1>
+
+    <div class="status-card">
+        <h2>Today's Earnings</h2>
+        <div class="amt" id="liveTotal">₹0</div>
+        <div id="syncStatus" style="color:#00b894">● Live Sync Active</div>
+    </div>
+
+    <button class="main-btn btn-daily" onclick="go('daily.html')">
+        <span>📋</span> Daily Work
+    </button>
+
+    <button class="main-btn btn-cust" onclick="go('customers.html')">
+        <span>👥</span> Customers
+    </button>
+
+    <button class="main-btn btn-summ" onclick="go('summary.html')">
+        <span>📊</span> Summary
+    </button>
+
+    <a href="../index.html" class="home-link">⬅ Exit Admin Mode</a>
 </div>
-
-<button class="main-btn btn-daily" onclick="go('daily.html')">
-    <span>📋 Daily Work</span>
-</button>
-
-<button class="main-btn btn-cust" onclick="go('customers.html')">
-    <span>👥 Customers</span>
-</button>
-
-<button class="main-btn btn-summ" onclick="go('summary.html')">
-    <span>📊 Detailed Summary</span>
-</button>
-
-<a href="../index.html" class="home-link">⬅ Exit Admin Mode</a>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -108,7 +120,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Helper for local date
 function getLocalDate() {
     let d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -118,13 +129,12 @@ onAuthStateChanged(auth, (user) => {
   if (!user || user.uid !== "ZcScdiPVf0VnjHsHZsRTrcMy8Y02") {
     window.location.href = "../index.html";
   } else {
-    // REAL-TIME TOTAL TRACKER
     const today = getLocalDate();
     onSnapshot(doc(db, "daily", today), (doc) => {
         const data = doc.data();
         document.getElementById("liveTotal").innerText = data ? "₹" + (data.total || 0) : "₹0";
     }, (error) => {
-        document.getElementById("syncStatus").innerText = "○ Offline";
+        document.getElementById("syncStatus").innerText = "○ Offline Mode";
         document.getElementById("syncStatus").style.color = "#d63031";
     });
   }
