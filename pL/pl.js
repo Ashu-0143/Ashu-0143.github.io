@@ -36,15 +36,13 @@ window.showSection = (id) => {
   document.getElementById(id).style.display = 'block';
 };
 
-// ✅ OPEN UI
+// ✅ INPUT UI
 window.openInputUI = () => {
   document.getElementById("inputUI").style.display = "block";
 };
 
 // ✅ CREATE LOCK
 window.createLock = async () => {
-  if (!currentUser) return;
-
   const label = document.getElementById("labelInput").value.trim();
   const timeValue = document.getElementById("timeInput").value;
 
@@ -62,19 +60,11 @@ window.createLock = async () => {
   }
 
   const unlockHour = parseInt(timeValue.split(":")[0]);
-
   const secret = Math.random().toString(36).substring(2, 12).toUpperCase();
 
-  try {
-    await navigator.clipboard.writeText(secret);
-  } catch {
-    alert("Clipboard failed!");
-    return;
-  }
-
+  await navigator.clipboard.writeText(secret);
   alert("Copied! Click DONE within 20 sec.");
 
-  // ✅ SAVE TEMP
   tempDocRef = await addDoc(
     collection(db, "users", currentUser.uid, "temp_vault"),
     {
@@ -88,20 +78,14 @@ window.createLock = async () => {
 
   showDoneButton();
 
-  // ⏳ TIMER
   tempTimer = setTimeout(async () => {
     if (tempDocRef) {
       await deleteDoc(tempDocRef);
       tempDocRef = null;
       hideDoneButton();
-      alert("Time expired. Password discarded.");
+      alert("Expired.");
     }
   }, 20000);
-
-  // ✅ reset UI
-  document.getElementById("labelInput").value = "";
-  document.getElementById("timeInput").value = "";
-  document.querySelectorAll("#inputUI input[type=checkbox]").forEach(cb => cb.checked = false);
 };
 
 // ✅ DONE BUTTON
@@ -122,63 +106,43 @@ function hideDoneButton() {
   if (btn) btn.remove();
 }
 
-// ✅ CONFIRM SAVE (SAFE)
+// ✅ CONFIRM SAVE
 async function confirmSave() {
-  if (!tempDocRef) {
-    alert("Nothing to save.");
+  if (!tempDocRef) return;
+
+  const snap = await getDoc(tempDocRef);
+  if (!snap.exists()) {
+    alert("Expired!");
     return;
   }
 
-  const btn = document.getElementById("doneBtn");
-  if (btn) btn.disabled = true;
+  const data = snap.data();
 
-  try {
-    const snap = await getDoc(tempDocRef);
-
-    if (!snap.exists()) {
-      alert("Expired!");
-      hideDoneButton();
-      return;
+  await addDoc(
+    collection(db, "users", currentUser.uid, "strict_vault"),
+    {
+      ...data,
+      savedAt: new Date()
     }
+  );
 
-    const data = snap.data();
+  await deleteDoc(tempDocRef);
+  tempDocRef = null;
+  clearTimeout(tempTimer);
+  hideDoneButton();
 
-    await addDoc(
-      collection(db, "users", currentUser.uid, "strict_vault"),
-      {
-        ...data,
-        savedAt: new Date()
-      }
-    );
-
-    await deleteDoc(tempDocRef);
-    tempDocRef = null;
-
-    clearTimeout(tempTimer);
-    hideDoneButton();
-
-    alert("Saved securely!");
-
-  } catch (e) {
-    console.error(e);
-    alert("Error saving.");
-  }
+  alert("Saved!");
 }
 
-// ✅ DELETE FUNCTION
-window.deleteVault = async (docId) => {
-  const confirmDelete = confirm("Are you sure you want to delete this password?");
-  if (!confirmDelete) return;
+// ✅ LIVE COUNTDOWN FORMAT
+function formatTime(ms) {
+  const total = Math.floor(ms / 1000);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}m ${s}s`;
+}
 
-  try {
-    await deleteDoc(doc(db, "users", currentUser.uid, "strict_vault", docId));
-  } catch (e) {
-    console.error(e);
-    alert("Delete failed.");
-  }
-};
-
-// ✅ LOAD VAULT
+// ✅ LOAD VAULT WITH LIVE TIMER
 function loadVault() {
   const vList = document.getElementById('vaultList');
 
@@ -190,31 +154,84 @@ function loadVault() {
   onSnapshot(q, (snap) => {
     vList.innerHTML = "";
 
-    if (snap.empty) {
-      vList.innerHTML = "<p>No passwords yet.</p>";
-      return;
-    }
-
     snap.forEach(docSnap => {
       const data = docSnap.data();
-      const now = new Date();
-
-      const isOpen =
-        data.unlockDays.includes(now.getDay()) &&
-        now.getHours() >= data.unlockHour;
 
       const card = document.createElement('div');
       card.className = 'vault-card';
 
+      const keyId = "key-" + docSnap.id;
+      const timerId = "timer-" + docSnap.id;
+
       card.innerHTML = `
-        <h3>${isOpen ? "🔓" : "🔒"} ${data.label}</h3>
-        <p class="${isOpen ? "unlocked" : ""}">
-          ${isOpen ? data.key : "Locked"}
-        </p>
-        <button onclick="deleteVault('${docSnap.id}')" class="menu-btn secondary">Delete</button>
+        <h3>${data.label}</h3>
+        <p id="${keyId}">••••••••</p>
+        <div id="${timerId}" class="timer"></div>
+        <div id="actions-${docSnap.id}"></div>
       `;
 
       vList.appendChild(card);
+
+      startLiveTimer(data, docSnap.id, keyId, timerId);
     });
   });
 }
+
+// ✅ LIVE TIMER LOGIC
+function startLiveTimer(data, id, keyId, timerId) {
+  const timerEl = document.getElementById(timerId);
+  const actionEl = document.getElementById("actions-" + id);
+
+  setInterval(() => {
+    const now = new Date();
+
+    const isDay = data.unlockDays.includes(now.getDay());
+    const start = new Date();
+    start.setHours(data.unlockHour, 0, 0, 0);
+
+    const end = new Date(start.getTime() + 60 * 60 * 1000);
+
+    if (isDay && now >= start && now <= end) {
+      // OPEN
+      const remaining = end - now;
+
+      timerEl.innerText = "Closes in " + formatTime(remaining);
+
+      actionEl.innerHTML = `
+        <button onclick="toggleView('${keyId}','${data.key}')">👁</button>
+        <button onclick="copyKey('${data.key}')">📋</button>
+        <button onclick="deleteVault('${id}')">🗑</button>
+      `;
+
+    } else {
+      // LOCKED
+      timerEl.innerText = "Locked";
+      actionEl.innerHTML = "";
+      document.getElementById(keyId).innerText = "••••••••";
+    }
+
+  }, 1000);
+}
+
+// 👁 VIEW
+window.toggleView = (keyId, key) => {
+  const el = document.getElementById(keyId);
+  el.innerText = el.innerText === "••••••••" ? key : "••••••••";
+};
+
+// 📋 COPY
+window.copyKey = async (key) => {
+  await navigator.clipboard.writeText(key);
+  alert("Copied! Will try clearing in 15s.");
+
+  setTimeout(() => {
+    navigator.clipboard.writeText("CLEARED");
+  }, 15000);
+};
+
+// 🗑 DELETE
+window.deleteVault = async (id) => {
+  if (!confirm("Delete this password?")) return;
+
+  await deleteDoc(doc(db, "users", currentUser.uid, "strict_vault", id));
+};
