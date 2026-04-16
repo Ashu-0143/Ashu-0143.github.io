@@ -1,15 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  onSnapshot, 
-  query, 
-  orderBy, 
-  deleteDoc, 
-  doc,
-  getDoc
+  getFirestore, collection, addDoc, onSnapshot, query, orderBy,
+  deleteDoc, getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = { 
@@ -25,12 +18,6 @@ const db = getFirestore(app);
 let currentUser = null;
 let tempDocRef = null;
 
-// ✅ DAY MAP
-const dayMap = {
-  sun: 0, mon: 1, tue: 2, wed: 3,
-  thu: 4, fri: 5, sat: 6
-};
-
 // ✅ LOGIN CHECK
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -42,48 +29,44 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// ✅ NAVIGATION
+// ✅ NAV
 window.showSection = (id) => {
   document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
   document.getElementById(id).style.display = 'block';
 };
 
-// ✅ AM/PM → 24hr
-function convertTo24(hourStr) {
-  let [hour, period] = hourStr.trim().split(" ");
-  hour = parseInt(hour);
+// ✅ OPEN INPUT UI
+window.openInputUI = () => {
+  document.getElementById("inputUI").style.display = "block";
+};
 
-  if (period.toLowerCase() === "pm" && hour !== 12) hour += 12;
-  if (period.toLowerCase() === "am" && hour === 12) hour = 0;
+// ✅ CREATE LOCK
+window.createLock = async () => {
+  const label = document.getElementById("labelInput").value;
+  const timeValue = document.getElementById("timeInput").value;
 
-  return hour;
-}
+  if (!label || !timeValue) {
+    alert("Fill all fields!");
+    return;
+  }
 
-// ✅ GENERATE PASSWORD
-window.generateNewLock = async () => {
-  const label = prompt("Purpose?");
-  if (!label) return;
+  const checkboxes = document.querySelectorAll("#inputUI input[type=checkbox]:checked");
+  const unlockDays = Array.from(checkboxes).map(cb => Number(cb.value));
 
-  const dayInput = prompt("Enter days (Mon, Tue, Fri)");
-  const hourInput = prompt("Enter time (e.g. 6 PM)");
+  if (unlockDays.length === 0) {
+    alert("Select at least one day!");
+    return;
+  }
 
-  if (!dayInput || !hourInput) return;
-
-  const unlockDays = dayInput
-    .toLowerCase()
-    .split(',')
-    .map(d => dayMap[d.trim()]);
-
-  const unlockHour = convertTo24(hourInput);
+  const unlockHour = parseInt(timeValue.split(":")[0]);
 
   const secret = Math.random().toString(36).substring(2, 12).toUpperCase();
 
   await navigator.clipboard.writeText(secret);
-  alert("Password copied! Come back and click DONE within 20 seconds.");
+  alert("Copied! Click DONE within 20 sec.");
 
-  // ✅ SAVE TEMP
   tempDocRef = await addDoc(
-    collection(db, "users", currentUser.uid, "temp_vault"), 
+    collection(db, "users", currentUser.uid, "temp_vault"),
     {
       label,
       key: secret,
@@ -95,59 +78,56 @@ window.generateNewLock = async () => {
 
   showDoneButton();
 
-  // ⏳ AUTO DELETE AFTER 20s
   setTimeout(async () => {
     if (tempDocRef) {
       await deleteDoc(tempDocRef);
       tempDocRef = null;
-      alert("Time expired. Password discarded.");
+      alert("Expired.");
       hideDoneButton();
     }
   }, 20000);
 };
 
-// ✅ SHOW DONE BUTTON
+// ✅ DONE BUTTON
 function showDoneButton() {
   let btn = document.getElementById("doneBtn");
   if (!btn) {
     btn = document.createElement("button");
     btn.id = "doneBtn";
     btn.innerText = "✅ Done";
-    btn.style.marginTop = "15px";
+    btn.className = "menu-btn";
     btn.onclick = confirmSave;
     document.querySelector(".glass-container").appendChild(btn);
   }
 }
 
-// ✅ HIDE DONE BUTTON
 function hideDoneButton() {
   const btn = document.getElementById("doneBtn");
   if (btn) btn.remove();
 }
 
-// ✅ CONFIRM SAVE (FIXED 🔥)
+// ✅ CONFIRM SAVE
 async function confirmSave() {
   if (!tempDocRef) return;
 
   try {
-    // ✅ CORRECT WAY (instead of tempDocRef.get())
     const snap = await getDoc(tempDocRef);
     const tempData = snap.data();
 
     await addDoc(
-      collection(db, "users", currentUser.uid, "strict_vault"), 
+      collection(db, "users", currentUser.uid, "strict_vault"),
       tempData
     );
 
     await deleteDoc(tempDocRef);
     tempDocRef = null;
 
-    alert("Saved securely!");
+    alert("Saved!");
     hideDoneButton();
 
   } catch (e) {
     console.error(e);
-    alert("Error saving password.");
+    alert("Error saving.");
   }
 }
 
@@ -182,7 +162,7 @@ function loadVault() {
       } else {
         card.innerHTML = `
           <h3>🔒 ${data.label}</h3>
-          <p>Locked until allowed time</p>
+          <p>Locked</p>
         `;
       }
 

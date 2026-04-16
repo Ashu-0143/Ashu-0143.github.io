@@ -90,40 +90,54 @@
   </div>
 </div>
 
-<script>
+<<script>
   let bodyClicks = 0;
   let clickTimer;
 
+  // 🔥 CONFIG (tweak these easily)
+  const REQUIRED_CLICKS = 8;   // how many clicks needed
+  const RESET_TIME = 800;      // time allowed between clicks (ms)
+
   $(document).on('click', function(e) {
     if (!$(e.target).is('button, a, input, .navbar-toggler-icon, .offcanvas, #message, #guessButton, .btn-close')) {
+
       bodyClicks++;
       createSparkle(e.pageX, e.pageY, bodyClicks);
+
       clearTimeout(clickTimer);
 
-      if (bodyClicks === 4) {
+      // ✅ success condition
+      if (bodyClicks >= REQUIRED_CLICKS) {
         setTimeout(() => {
-            window.location.href = 'pL/PasswordLocker.html';
+          window.location.href = 'pL/PasswordLocker.html';
         }, 200);
+        return;
       }
 
+      // ✅ combo reset (if user is too slow)
       clickTimer = setTimeout(() => {
         bodyClicks = 0;
-      }, 1500);
+      }, RESET_TIME);
     }
   });
 
   function createSparkle(x, y, count) {
-    const size = count * 25;
+    const size = 20 + (count * 15); // smoother growth
     const sparkle = $('<div class="sparkle"></div>').css({
       top: y - (size / 2),
       left: x - (size / 2),
       width: size + 'px',
       height: size + 'px',
-      filter: `brightness(${1 + (count * 0.5)})`
+      filter: `brightness(${1 + (count * 0.4)})`,
+      transform: `scale(${1 + count * 0.1})`
     });
 
     $('body').append(sparkle);
-    setTimeout(() => { sparkle.remove(); }, 600);
+
+    // smoother cleanup
+    setTimeout(() => {
+      sparkle.fadeOut(200, () => sparkle.remove());
+    }, 400);
   }
 
   // ✅ Service Worker
