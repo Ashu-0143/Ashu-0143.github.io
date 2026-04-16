@@ -41,7 +41,7 @@ window.openInputUI = () => {
   document.getElementById("inputUI").style.display = "block";
 };
 
-// ✅ CREATE LOCK (STRICT TIME)
+// ✅ CREATE LOCK
 window.createLock = async () => {
   const label = document.getElementById("labelInput").value.trim();
   const timeValue = document.getElementById("timeInput").value;
@@ -136,12 +136,34 @@ async function confirmSave() {
   alert("Saved!");
 }
 
-// ✅ FORMAT TIME
+// ✅ FORMAT TIME (SMART)
 function formatTime(ms) {
   const total = Math.floor(ms / 1000);
-  const m = Math.floor(total / 60);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
   const s = total % 60;
+
+  if (h > 0) return `${h}h ${m}m`;
   return `${m}m ${s}s`;
+}
+
+// ✅ GET NEXT OPEN TIME
+function getNextOpenTime(data) {
+  const now = new Date();
+
+  for (let i = 0; i < 7; i++) {
+    const checkDay = (now.getDay() + i) % 7;
+
+    if (data.unlockDays.includes(checkDay)) {
+      const next = new Date();
+      next.setDate(now.getDate() + i);
+      next.setHours(data.unlockHour, data.unlockMinute || 0, 0, 0);
+
+      if (next > now) return next;
+    }
+  }
+
+  return null;
 }
 
 // ✅ LOAD VAULT
@@ -179,7 +201,7 @@ function loadVault() {
   });
 }
 
-// ✅ STRICT TIMER LOGIC
+// ✅ MAIN TIMER LOGIC
 function startLiveTimer(data, id, keyId, timerId) {
   const timerEl = document.getElementById(timerId);
   const actionEl = document.getElementById("actions-" + id);
@@ -209,7 +231,15 @@ function startLiveTimer(data, id, keyId, timerId) {
       `;
 
     } else {
-      timerEl.innerText = "Locked";
+      const next = getNextOpenTime(data);
+
+      if (next) {
+        const diff = next - now;
+        timerEl.innerText = "Opens in " + formatTime(diff);
+      } else {
+        timerEl.innerText = "No schedule";
+      }
+
       actionEl.innerHTML = "";
       document.getElementById(keyId).innerText = "••••••••";
     }
