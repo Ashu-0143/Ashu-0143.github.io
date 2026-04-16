@@ -36,12 +36,12 @@ window.showSection = (id) => {
   document.getElementById(id).style.display = 'block';
 };
 
-// ✅ INPUT UI
+// ✅ OPEN INPUT
 window.openInputUI = () => {
   document.getElementById("inputUI").style.display = "block";
 };
 
-// ✅ CREATE LOCK
+// ✅ CREATE LOCK (STRICT TIME)
 window.createLock = async () => {
   const label = document.getElementById("labelInput").value.trim();
   const timeValue = document.getElementById("timeInput").value;
@@ -55,11 +55,12 @@ window.createLock = async () => {
   const unlockDays = Array.from(checkboxes).map(cb => Number(cb.value));
 
   if (unlockDays.length === 0) {
-    alert("Select at least one day!");
+    alert("Select days!");
     return;
   }
 
-  const unlockHour = parseInt(timeValue.split(":")[0]);
+  const [hour, minute] = timeValue.split(":").map(Number);
+
   const secret = Math.random().toString(36).substring(2, 12).toUpperCase();
 
   await navigator.clipboard.writeText(secret);
@@ -71,7 +72,8 @@ window.createLock = async () => {
       label,
       key: secret,
       unlockDays,
-      unlockHour,
+      unlockHour: hour,
+      unlockMinute: minute,
       createdAt: new Date()
     }
   );
@@ -134,7 +136,7 @@ async function confirmSave() {
   alert("Saved!");
 }
 
-// ✅ LIVE COUNTDOWN FORMAT
+// ✅ FORMAT TIME
 function formatTime(ms) {
   const total = Math.floor(ms / 1000);
   const m = Math.floor(total / 60);
@@ -142,7 +144,7 @@ function formatTime(ms) {
   return `${m}m ${s}s`;
 }
 
-// ✅ LOAD VAULT WITH LIVE TIMER
+// ✅ LOAD VAULT
 function loadVault() {
   const vList = document.getElementById('vaultList');
 
@@ -177,7 +179,7 @@ function loadVault() {
   });
 }
 
-// ✅ LIVE TIMER LOGIC
+// ✅ STRICT TIMER LOGIC
 function startLiveTimer(data, id, keyId, timerId) {
   const timerEl = document.getElementById(timerId);
   const actionEl = document.getElementById("actions-" + id);
@@ -185,26 +187,28 @@ function startLiveTimer(data, id, keyId, timerId) {
   setInterval(() => {
     const now = new Date();
 
-    const isDay = data.unlockDays.includes(now.getDay());
     const start = new Date();
-    start.setHours(data.unlockHour, 0, 0, 0);
+    start.setHours(data.unlockHour, data.unlockMinute || 0, 0, 0);
 
     const end = new Date(start.getTime() + 60 * 60 * 1000);
 
-    if (isDay && now >= start && now <= end) {
-      // OPEN
+    const isDay = data.unlockDays.includes(now.getDay());
+    const isOpen = isDay && now >= start && now <= end;
+
+    if (isOpen) {
       const remaining = end - now;
 
       timerEl.innerText = "Closes in " + formatTime(remaining);
 
       actionEl.innerHTML = `
-        <button onclick="toggleView('${keyId}','${data.key}')">👁</button>
-        <button onclick="copyKey('${data.key}')">📋</button>
-        <button onclick="deleteVault('${id}')">🗑</button>
+        <div onclick="tapCopy('${data.key}')" 
+             style="cursor:pointer; padding:10px; background:#222; border-radius:10px;">
+             Tap to Copy 🔐
+        </div>
+        <button onclick="deleteVault('${id}')">🗑 Delete</button>
       `;
 
     } else {
-      // LOCKED
       timerEl.innerText = "Locked";
       actionEl.innerHTML = "";
       document.getElementById(keyId).innerText = "••••••••";
@@ -213,23 +217,17 @@ function startLiveTimer(data, id, keyId, timerId) {
   }, 1000);
 }
 
-// 👁 VIEW
-window.toggleView = (keyId, key) => {
-  const el = document.getElementById(keyId);
-  el.innerText = el.innerText === "••••••••" ? key : "••••••••";
-};
-
-// 📋 COPY
-window.copyKey = async (key) => {
+// ✅ TAP COPY
+window.tapCopy = async (key) => {
   await navigator.clipboard.writeText(key);
-  alert("Copied! Will try clearing in 15s.");
+  alert("Copied! Clearing in 15s.");
 
   setTimeout(() => {
     navigator.clipboard.writeText("CLEARED");
   }, 15000);
 };
 
-// 🗑 DELETE
+// ✅ DELETE
 window.deleteVault = async (id) => {
   if (!confirm("Delete this password?")) return;
 
