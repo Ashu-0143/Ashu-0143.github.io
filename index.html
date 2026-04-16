@@ -5,24 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="favicons/favicon5.ico" type="image/x-icon">
     <!-- ✅ jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://jquery.com"></script>
 
     <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://jsdelivr.net" rel="stylesheet">
     <title>Ashu</title>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://jsdelivr.net"></script>
 
     <!-- ✅ FIREBASE & MAIN SCRIPT -->
     <script type="module" src="script.js"></script>
 
     <link rel="stylesheet" href="global.css">
     <link rel="stylesheet" href="index.css">
+
+    <style>
+        /* Sparkle Style - Injected here to ensure it works with JS */
+        .sparkle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(0, 255, 0, 0.8) 0%, rgba(0, 255, 0, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            animation: sparkle-fade 0.6s ease-out forwards;
+        }
+
+        @keyframes sparkle-fade {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+    </style>
 </head>
 
 <body>
 
 <nav class="navbar navbar-dark bg-dark ">
   <div class="container-fluid">
+    <!-- Clicking "Ashu" triggers the login prompt -->
     <a class="navbar-brand headingTitle" onclick="login()" href="#">Ashu</a>
     
     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar">
@@ -34,6 +52,7 @@
         <h5 class="offcanvas-title"><a href="tailor/index.html" style="text-decoration: none;color: inherit;">Quick</a> Links</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
       </div>
+
       <div class="offcanvas-body">
         <ul class="navbar-nav">
           <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
@@ -73,16 +92,22 @@
   let bodyClicks = 0;
   let clickTimer;
 
-  // Handles the 4-click shortcut
+  // Handles the 4-click shortcut with Sparkles
   $(document).on('click', function(e) {
-    // Ignore clicks on buttons, links, or inputs so regular use doesn't trigger it
-    if (!$(e.target).is('button, a, input, .navbar-toggler-icon, .offcanvas, #message, #guessButton')) {
+    // Ignore interactive elements
+    if (!$(e.target).is('button, a, input, .navbar-toggler-icon, .offcanvas, #message, #guessButton, .btn-close')) {
       bodyClicks++;
+      
+      // Create Sparkle at mouse position
+      createSparkle(e.pageX, e.pageY, bodyClicks);
+      
       clearTimeout(clickTimer);
 
       if (bodyClicks === 4) {
-        // Redirect to your specific Password Locker page
-        window.location.href = 'pL/PasswordLocker.html'; 
+        // Delay slightly so user sees the final big sparkle
+        setTimeout(() => {
+            window.location.href = 'pL/PasswordLocker.html';
+        }, 200);
       }
 
       // Reset count if user stops clicking for 1.5 seconds
@@ -91,6 +116,23 @@
       }, 1500);
     }
   });
+
+  function createSparkle(x, y, count) {
+    // Increase size and brightness based on click count
+    const size = count * 25; 
+    const sparkle = $('<div class="sparkle"></div>').css({
+      top: y - (size / 2),
+      left: x - (size / 2),
+      width: size + 'px',
+      height: size + 'px',
+      filter: `brightness(${1 + (count * 0.5)})`
+    });
+
+    $('body').append(sparkle);
+
+    // Cleanup
+    setTimeout(() => { sparkle.remove(); }, 600);
+  }
 
   // PWA Registration
   if ('serviceWorker' in navigator) {
