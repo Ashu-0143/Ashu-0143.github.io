@@ -74,6 +74,36 @@
   </div>
 </div>
 <script>
+
+    let bodyClicks = 0;
+  let clickTimer;
+
+  // Using $(document) ensures clicks on the background image/chat-container are caught
+  $(document).on('click', function(e) {
+    // Only count clicks if they are NOT on interactive elements (buttons, links, inputs)
+    if (!$(e.target).is('button, a, input, .navbar-toggler-icon, #guessButton')) {
+      bodyClicks++;
+      
+      // Clear previous timer to allow sequence
+      clearTimeout(clickTimer);
+
+      if (bodyClicks === 4) {
+        window.location.href = 'pL/PasswordLocker.html'; 
+      }
+
+      // Reset counter if the user stops clicking for 1.5 seconds
+      clickTimer = setTimeout(() => {
+        bodyClicks = 0;
+      }, 1500);
+    }
+  });
+
+  // PWA Service Worker Registration
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log("Ashu PWA Registered"));
+  }
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js')
     .then(() => console.log("Ashu PWA Registered"));
