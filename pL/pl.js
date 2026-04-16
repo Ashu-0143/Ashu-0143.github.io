@@ -1,6 +1,6 @@
 import { initializeApp } from "https://gstatic.com";
 import { getAuth, onAuthStateChanged } from "https://gstatic.com";
-import { getFirestore, collection, addDoc, onSnapshot, query, where, serverTimestamp } from "https://gstatic.com";
+import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp } from "https://gstatic.com";
 
 const firebaseConfig = { apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4", authDomain: "://firebaseapp.com", projectId: "ashu-0143" };
 const app = initializeApp(firebaseConfig);
@@ -9,96 +9,77 @@ const db = getFirestore(app);
 
 let currentUser = null;
 
+// Ensure user is logged in
 onAuthStateChanged(auth, (user) => {
-    if (user) { currentUser = user; loadVault(); } 
-    else { window.location.href = '../index.html'; }
+    if (user) { 
+        currentUser = user; 
+        loadVault(); 
+    } else { 
+        window.location.href = '../index.html'; 
+    }
 });
 
-window.generateNewLock = async () => {
-    const site = prompt("Label for this lock (e.g. WhatsApp):");
-    if (!site) return;
-
-    const secret = Math.random().toString(36).substring(2, 12).toUpperCase() + "@" + Math.floor(10 + Math.random() * 90);
-    
-    await navigator.clipboard.writeText(secret);
-    
-    // UI Update for the 20s countdown
-    const btn = document.getElementById("generateBtn");
-    const warning = document.querySelector(".warning");
-    btn.disabled = true;
-    
-    let secondsLeft = 20;
-    const interval = setInterval(() => {
-        secondsLeft--;
-        warning.innerHTML = `⚠️ <strong>CLIPBOARD WIPE IN: ${secondsLeft}s</strong><br>Paste it now!`;
-        warning.style.color = "#ff4d6d";
-        
-        if (secondsLeft <= 0) {
-            clearInterval(interval);
-            navigator.clipboard.writeText("CLEARED_BY_VAULT");
-            warning.innerHTML = "✅ Clipboard Wiped. Access Restricted.";
-            warning.style.color = "#00ff41";
-            btn.disabled = false;
-        }
-    }, 1000);
-
-    // Save to Firebase
-    await addDoc(collection(db, "strict_vault"), {
-        uid: currentUser.uid,
-        label: site,
-        key: secret,
-        day: 6,   // Saturday
-        hour: 18,  // 6 PM
-        created: serverTimestamp()
-    });
+// --- UI NAVIGATION ---
+window.showSection = (id) => {
+    document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
 };
 
+// --- 1. GENERATE NEW PASSWORD ---
+window.generateNewLock = async () => {
+    const label = prompt("What is this for? (e.g. WhatsApp Private)");
+    if (!label) return;
+
+    const dayInput = prompt("Enter unlock days (0-6 where 0=Sun, 6=Sat). Use commas for multiple: e.g. 2,6");
+    const hourInput = prompt("Enter unlock hour (0-23): e.g. 18 for 6PM");
+    
+    if (dayInput === null || hourInput === null) return;
+
+    const secret = Math.random().toString(36).substring(2, 12).toUpperCase() + "!";
+    await navigator.clipboard.writeText(secret);
+    
+    // Save to your private folder
+    await addDoc(collection(db, "users", currentUser.uid, "strict_vault"), {
+        label: label,
+        key: secret,
+        unlockDays: dayInput.split(',').map(Number), // Convert "2,6" to [2, 6]
+        unlockHour: parseInt(hourInput),
+        created: serverTimestamp()
+    });
+
+    alert("KEY COPIED! You have 20 seconds to paste it.");
+    setTimeout(() => {
+        navigator.clipboard.writeText("CLEARED");
+        alert("Clipboard wiped! Stay disciplined.");
+    }, 20000);
+};
+
+// --- 2. LOAD & CHECK VAULT ---
 function loadVault() {
-    const q = query(collection(db, "strict_vault"), where("uid", "==", currentUser.uid));
+    const vList = document.getElementById('vaultList');
+    const q = query(collection(db, "users", currentUser.uid, "strict_vault"));
+
     onSnapshot(q, (snap) => {
-        const container = document.getElementById('vaultList');
-        container.innerHTML = "";
+        vList.innerHTML = "";
         snap.forEach(doc => {
             const data = doc.data();
+            const now = new Date();
+            
+            // Flexible Day/Time Check
+            const isDayMatch = data.unlockDays.includes(now.getDay());
+            const isHourMatch = now.getHours() >= data.unlockHour;
+            const isOpen = isDayMatch && isHourMatch;
+
             const card = document.createElement('div');
             card.className = 'vault-card';
             
-            const updateUI = () => {
-                const now = new Date();
-                // 0=Sun, 1=Mon... 6=Sat
-                const isSaturday = now.getDay() === 6;
-                const isEvening = now.getHours() >= 18;
-
-                if (isSaturday && isEvening) {
-                    card.innerHTML = `<h3>${data.label}</h3><p class="unlocked">${data.key}</p><small>Vault Open</small>`;
-                } else {
-                    card.innerHTML = `<h3>${data.label}</h3><p class="locked">LOCKED</p><div class="timer" id="timer-${doc.id}">Calculating...</div>`;
-                    startCountdown(doc.id);
-                }
-            };
-            updateUI();
-            container.appendChild(card);
+            if (isOpen) {
+                card.innerHTML = `<h3>✅ ${data.label}</h3><p class="unlocked">${data.key}</p>`;
+            } else {
+                card.innerHTML = `<h3>🔒 ${data.label}</h3><p class="locked">LOCKED</p>
+                                  <small>Next: Days ${data.unlockDays} at ${data.unlockHour}:00</small>`;
+            }
+            vList.appendChild(card);
         });
     });
-}
-
-function startCountdown(id) {
-    setInterval(() => {
-        const now = new Date();
-        let target = new Date();
-        // Calculate next Saturday 6PM
-        target.setDate(now.getDate() + (6 - now.getDay() + 7) % 7);
-        target.setHours(18, 0, 0, 0);
-
-        // If today is Saturday but past 6PM, target next week
-        if (now > target) target.setDate(target.getDate() + 7);
-
-        const diff = target - now;
-        const h = Math.floor(diff / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        
-        const el = document.getElementById(`timer-${id}`);
-        if (el) el.innerText = `${h}h ${m}m ${s}s until unlock`;
-    }, 1000);
 }
