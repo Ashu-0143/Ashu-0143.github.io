@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="favicons/favicon5.ico" type="image/x-icon">
-    <!-- ✅ jQuery (IMPORTANT) -->
+    <!-- ✅ jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <!-- Bootstrap -->
@@ -12,19 +12,17 @@
     <title>Ashu</title>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ✅ YOUR SCRIPT -->
+    <!-- ✅ FIREBASE & MAIN SCRIPT -->
     <script type="module" src="script.js"></script>
 
-<link rel="stylesheet" href="global.css">
-<link rel="stylesheet" href="index.css">
-
+    <link rel="stylesheet" href="global.css">
+    <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
 
 <nav class="navbar navbar-dark bg-dark ">
   <div class="container-fluid">
-    <!-- Clicking "Ashu" triggers the login prompt -->
     <a class="navbar-brand headingTitle" onclick="login()" href="#">Ashu</a>
     
     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar">
@@ -36,7 +34,6 @@
         <h5 class="offcanvas-title"><a href="tailor/index.html" style="text-decoration: none;color: inherit;">Quick</a> Links</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
       </div>
-
       <div class="offcanvas-body">
         <ul class="navbar-nav">
           <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
@@ -63,51 +60,44 @@
   <h1 class="decorLine" style="color: rgb(0, 255, 0);">----------</h1>
 </div>
 
-<!-- ✅ Modified Chat Section -->
-<!-- Display is set to none initially; script.js will show it after login -->
+<!-- ✅ Chat Section -->
 <div id="chat-container" style="display:none;">
   <div id="chat-box"></div>
-
   <div class="submitPack" style="display:flex; margin-top:10px; gap: 5px;">
     <input id="message" class="form-control" placeholder="Type message...">
     <button id="guessButton" onclick="sendMessage()" class="btn">Send</button>
   </div>
 </div>
-<script>
 
-    let bodyClicks = 0;
+<script>
+  let bodyClicks = 0;
   let clickTimer;
 
-  // Using $(document) ensures clicks on the background image/chat-container are caught
+  // Handles the 4-click shortcut
   $(document).on('click', function(e) {
-    // Only count clicks if they are NOT on interactive elements (buttons, links, inputs)
-    if (!$(e.target).is('button, a, input, .navbar-toggler-icon, #guessButton')) {
+    // Ignore clicks on buttons, links, or inputs so regular use doesn't trigger it
+    if (!$(e.target).is('button, a, input, .navbar-toggler-icon, .offcanvas, #message, #guessButton')) {
       bodyClicks++;
-      
-      // Clear previous timer to allow sequence
       clearTimeout(clickTimer);
 
       if (bodyClicks === 4) {
+        // Redirect to your specific Password Locker page
         window.location.href = 'pL/PasswordLocker.html'; 
       }
 
-      // Reset counter if the user stops clicking for 1.5 seconds
+      // Reset count if user stops clicking for 1.5 seconds
       clickTimer = setTimeout(() => {
         bodyClicks = 0;
       }, 1500);
     }
   });
 
-  // PWA Service Worker Registration
+  // PWA Registration
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log("Ashu PWA Registered"));
+      .then(() => console.log("Ashu PWA Registered"))
+      .catch((err) => console.log("SW Register Error:", err));
   }
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js')
-    .then(() => console.log("Ashu PWA Registered"));
-}
 </script>
 
 </body>
