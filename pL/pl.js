@@ -1,8 +1,17 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  onSnapshot, 
+  query, 
+  orderBy, 
+  deleteDoc, 
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ✅ CONFIG
 const firebaseConfig = { 
   apiKey: "AIzaSyCaRF_Kpsjlpy4PbhB5wrEKjnTk34n9Me4", 
   authDomain: "ashu-0143.firebaseapp.com", 
@@ -14,112 +23,170 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentUser = null;
+let tempDocRef = null;
+
+// ✅ DAY MAP
+const dayMap = {
+  sun: 0, mon: 1, tue: 2, wed: 3,
+  thu: 4, fri: 5, sat: 6
+};
 
 // ✅ LOGIN CHECK
 onAuthStateChanged(auth, (user) => {
-    if (user) { 
-        currentUser = user; 
-        loadVault(); 
-    } else { 
-        alert("Access Denied! Please login first.");
-        window.location.href = '../index.html'; 
-    }
+  if (user) {
+    currentUser = user;
+    loadVault();
+  } else {
+    alert("Login required!");
+    window.location.href = '../index.html';
+  }
 });
 
 // ✅ NAVIGATION
 window.showSection = (id) => {
-    document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-    const target = document.getElementById(id);
-    if (target) target.style.display = 'block';
+  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+  document.getElementById(id).style.display = 'block';
 };
+
+// ✅ AM/PM → 24hr
+function convertTo24(hourStr) {
+  let [hour, period] = hourStr.trim().split(" ");
+  hour = parseInt(hour);
+
+  if (period.toLowerCase() === "pm" && hour !== 12) hour += 12;
+  if (period.toLowerCase() === "am" && hour === 12) hour = 0;
+
+  return hour;
+}
 
 // ✅ GENERATE PASSWORD
 window.generateNewLock = async () => {
-    if (!currentUser) return;
+  const label = prompt("Purpose?");
+  if (!label) return;
 
-    const label = prompt("Purpose for this lock?");
-    if (!label) return;
+  const dayInput = prompt("Enter days (Mon, Tue, Fri)");
+  const hourInput = prompt("Enter time (e.g. 6 PM)");
 
-    const dayInput = prompt("Days (0=Sun, 6=Sat)\nExample: 2,6");
-    const hourInput = prompt("Hour (0-23)");
+  if (!dayInput || !hourInput) return;
 
-    if (dayInput === null || hourInput === null) return;
+  const unlockDays = dayInput
+    .toLowerCase()
+    .split(',')
+    .map(d => dayMap[d.trim()]);
 
-    const secret = Math.random().toString(36).substring(2, 12).toUpperCase() + "#" + Math.floor(Math.random() * 99);
-    
-    try {
-        await navigator.clipboard.writeText(secret);
-        alert("KEY COPIED! You have 20 seconds.");
+  const unlockHour = convertTo24(hourInput);
 
-        await addDoc(collection(db, "users", currentUser.uid, "strict_vault"), {
-            label: label,
-            key: secret,
-            unlockDays: dayInput.split(',').map(Number),
-            unlockHour: parseInt(hourInput),
-            timestamp: new Date()
-        });
+  const secret = Math.random().toString(36).substring(2, 12).toUpperCase();
 
-    } catch (e) {
-        console.error("Error:", e);
-        alert("Something went wrong!");
+  await navigator.clipboard.writeText(secret);
+  alert("Password copied! Come back and click DONE within 20 seconds.");
+
+  // ✅ SAVE TEMP
+  tempDocRef = await addDoc(
+    collection(db, "users", currentUser.uid, "temp_vault"), 
+    {
+      label,
+      key: secret,
+      unlockDays,
+      unlockHour,
+      createdAt: new Date()
     }
+  );
 
-    // Clipboard wipe
-    let countdown = 20;
-    const timer = setInterval(() => {
-        countdown--;
-        if (countdown <= 0) {
-            clearInterval(timer);
-            navigator.clipboard.writeText("WIPED_FOR_SECURITY");
-            alert("Clipboard cleared.");
-        }
-    }, 1000);
+  showDoneButton();
+
+  // ⏳ AUTO DELETE AFTER 20s
+  setTimeout(async () => {
+    if (tempDocRef) {
+      await deleteDoc(tempDocRef);
+      tempDocRef = null;
+      alert("Time expired. Password discarded.");
+      hideDoneButton();
+    }
+  }, 20000);
 };
+
+// ✅ SHOW DONE BUTTON
+function showDoneButton() {
+  let btn = document.getElementById("doneBtn");
+  if (!btn) {
+    btn = document.createElement("button");
+    btn.id = "doneBtn";
+    btn.innerText = "✅ Done";
+    btn.style.marginTop = "15px";
+    btn.onclick = confirmSave;
+    document.querySelector(".glass-container").appendChild(btn);
+  }
+}
+
+// ✅ HIDE DONE BUTTON
+function hideDoneButton() {
+  const btn = document.getElementById("doneBtn");
+  if (btn) btn.remove();
+}
+
+// ✅ CONFIRM SAVE (FIXED 🔥)
+async function confirmSave() {
+  if (!tempDocRef) return;
+
+  try {
+    // ✅ CORRECT WAY (instead of tempDocRef.get())
+    const snap = await getDoc(tempDocRef);
+    const tempData = snap.data();
+
+    await addDoc(
+      collection(db, "users", currentUser.uid, "strict_vault"), 
+      tempData
+    );
+
+    await deleteDoc(tempDocRef);
+    tempDocRef = null;
+
+    alert("Saved securely!");
+    hideDoneButton();
+
+  } catch (e) {
+    console.error(e);
+    alert("Error saving password.");
+  }
+}
 
 // ✅ LOAD VAULT
 function loadVault() {
-    const vList = document.getElementById('vaultList');
-    if (!vList) return;
+  const vList = document.getElementById('vaultList');
 
-    const q = query(
-        collection(db, "users", currentUser.uid, "strict_vault"),
-        orderBy("timestamp", "desc")
-    );
+  const q = query(
+    collection(db, "users", currentUser.uid, "strict_vault"),
+    orderBy("createdAt", "desc")
+  );
 
-    onSnapshot(q, (snap) => {
-        vList.innerHTML = "";
+  onSnapshot(q, (snap) => {
+    vList.innerHTML = "";
 
-        if (snap.empty) {
-            vList.innerHTML = "<p>No passwords saved yet.</p>";
-            return;
-        }
+    snap.forEach(docSnap => {
+      const data = docSnap.data();
+      const now = new Date();
 
-        snap.forEach(doc => {
-            const data = doc.data();
-            const now = new Date();
+      const isOpen =
+        data.unlockDays.includes(now.getDay()) &&
+        now.getHours() >= data.unlockHour;
 
-            const isDayMatch = data.unlockDays.includes(now.getDay());
-            const isHourMatch = now.getHours() >= data.unlockHour;
-            const isOpen = isDayMatch && isHourMatch;
+      const card = document.createElement('div');
+      card.className = 'vault-card';
 
-            const card = document.createElement('div');
-            card.className = 'vault-card';
-            
-            if (isOpen) {
-                card.innerHTML = `
-                    <h3>🔓 ${data.label}</h3>
-                    <p class="unlocked">${data.key}</p>
-                    <small>Status: UNLOCKED</small>
-                `;
-            } else {
-                card.innerHTML = `
-                    <h3>🔒 ${data.label}</h3>
-                    <p class="locked">TIME LOCKED</p>
-                    <small>Unlocks: Days (${data.unlockDays}) at ${data.unlockHour}:00</small>
-                `;
-            }
+      if (isOpen) {
+        card.innerHTML = `
+          <h3>🔓 ${data.label}</h3>
+          <p class="unlocked">${data.key}</p>
+        `;
+      } else {
+        card.innerHTML = `
+          <h3>🔒 ${data.label}</h3>
+          <p>Locked until allowed time</p>
+        `;
+      }
 
-            vList.appendChild(card);
-        });
+      vList.appendChild(card);
     });
+  });
 }
