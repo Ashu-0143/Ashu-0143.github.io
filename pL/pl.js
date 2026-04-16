@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { 
   getFirestore, collection, addDoc, onSnapshot, query, orderBy,
-  deleteDoc, getDoc
+  deleteDoc, getDoc, doc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = { 
@@ -17,8 +17,9 @@ const db = getFirestore(app);
 
 let currentUser = null;
 let tempDocRef = null;
+let tempTimer = null;
 
-// ✅ LOGIN CHECK
+// ✅ LOGIN
 onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUser = user;
@@ -35,14 +36,16 @@ window.showSection = (id) => {
   document.getElementById(id).style.display = 'block';
 };
 
-// ✅ OPEN INPUT UI
+// ✅ OPEN UI
 window.openInputUI = () => {
   document.getElementById("inputUI").style.display = "block";
 };
 
 // ✅ CREATE LOCK
 window.createLock = async () => {
-  const label = document.getElementById("labelInput").value;
+  if (!currentUser) return;
+
+  const label = document.getElementById("labelInput").value.trim();
   const timeValue = document.getElementById("timeInput").value;
 
   if (!label || !timeValue) {
@@ -62,9 +65,16 @@ window.createLock = async () => {
 
   const secret = Math.random().toString(36).substring(2, 12).toUpperCase();
 
-  await navigator.clipboard.writeText(secret);
+  try {
+    await navigator.clipboard.writeText(secret);
+  } catch {
+    alert("Clipboard failed!");
+    return;
+  }
+
   alert("Copied! Click DONE within 20 sec.");
 
+  // ✅ SAVE TEMP
   tempDocRef = await addDoc(
     collection(db, "users", currentUser.uid, "temp_vault"),
     {
@@ -78,14 +88,20 @@ window.createLock = async () => {
 
   showDoneButton();
 
-  setTimeout(async () => {
+  // ⏳ TIMER
+  tempTimer = setTimeout(async () => {
     if (tempDocRef) {
       await deleteDoc(tempDocRef);
       tempDocRef = null;
-      alert("Expired.");
       hideDoneButton();
+      alert("Time expired. Password discarded.");
     }
   }, 20000);
+
+  // ✅ reset UI
+  document.getElementById("labelInput").value = "";
+  document.getElementById("timeInput").value = "";
+  document.querySelectorAll("#inputUI input[type=checkbox]").forEach(cb => cb.checked = false);
 };
 
 // ✅ DONE BUTTON
@@ -106,30 +122,61 @@ function hideDoneButton() {
   if (btn) btn.remove();
 }
 
-// ✅ CONFIRM SAVE
+// ✅ CONFIRM SAVE (SAFE)
 async function confirmSave() {
-  if (!tempDocRef) return;
+  if (!tempDocRef) {
+    alert("Nothing to save.");
+    return;
+  }
+
+  const btn = document.getElementById("doneBtn");
+  if (btn) btn.disabled = true;
 
   try {
     const snap = await getDoc(tempDocRef);
-    const tempData = snap.data();
+
+    if (!snap.exists()) {
+      alert("Expired!");
+      hideDoneButton();
+      return;
+    }
+
+    const data = snap.data();
 
     await addDoc(
       collection(db, "users", currentUser.uid, "strict_vault"),
-      tempData
+      {
+        ...data,
+        savedAt: new Date()
+      }
     );
 
     await deleteDoc(tempDocRef);
     tempDocRef = null;
 
-    alert("Saved!");
+    clearTimeout(tempTimer);
     hideDoneButton();
+
+    alert("Saved securely!");
 
   } catch (e) {
     console.error(e);
     alert("Error saving.");
   }
 }
+
+// ✅ DELETE FUNCTION
+window.deleteVault = async (docId) => {
+  const confirmDelete = confirm("Are you sure you want to delete this password?");
+  if (!confirmDelete) return;
+
+  try {
+    await deleteDoc(doc(db, "users", currentUser.uid, "strict_vault", docId));
+  } catch (e) {
+    console.error(e);
+    alert("Delete failed.");
+  }
+};
 
 // ✅ LOAD VAULT
 function loadVault() {
@@ -143,6 +190,11 @@ function loadVault() {
   onSnapshot(q, (snap) => {
     vList.innerHTML = "";
 
+    if (snap.empty) {
+      vList.innerHTML = "<p>No passwords yet.</p>";
+      return;
+    }
+
     snap.forEach(docSnap => {
       const data = docSnap.data();
       const now = new Date();
@@ -154,17 +206,13 @@ function loadVault() {
       const card = document.createElement('div');
       card.className = 'vault-card';
 
-      if (isOpen) {
-        card.innerHTML = `
-          <h3>🔓 ${data.label}</h3>
-          <p class="unlocked">${data.key}</p>
-        `;
-      } else {
-        card.innerHTML = `
-          <h3>🔒 ${data.label}</h3>
-          <p>Locked</p>
-        `;
-      }
+      card.innerHTML = `
+        <h3>${isOpen ? "🔓" : "🔒"} ${data.label}</h3>
+        <p class="${isOpen ? "unlocked" : ""}">
+          ${isOpen ? data.key : "Locked"}
+        </p>
+        <button onclick="deleteVault('${docSnap.id}')" class="menu-btn secondary">Delete</button>
+      `;
 
       vList.appendChild(card);
     });
