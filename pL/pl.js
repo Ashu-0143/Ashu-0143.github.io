@@ -14,7 +14,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
+const TEMP_TIMEOUT = 30000;
 let currentUser = null;
 let tempDocRef = null;
 let tempTimer = null;
@@ -64,7 +64,7 @@ window.createLock = async () => {
   const secret = Math.random().toString(36).substring(2, 12).toUpperCase();
 
   await navigator.clipboard.writeText(secret);
-  alert("Copied! Click DONE within 20 sec.");
+  alert("Copied! Click DONE within 30 sec.");
 
   tempDocRef = await addDoc(
     collection(db, "users", currentUser.uid, "temp_vault"),
@@ -87,7 +87,7 @@ window.createLock = async () => {
       hideDoneButton();
       alert("Expired.");
     }
-  }, 20000);
+  }, TEMP_TIMEOUT);
 };
 
 // ✅ DONE BUTTON
