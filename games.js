@@ -6,7 +6,12 @@ $(document).ready(function () {
   $(".game1").on("click", function () {
 
     $("#minNumber").val("1");
-    $("#maxNumber").val("");
+
+    // ✅ FIX: don't empty max, keep valid default
+    if ($("#maxNumber").val() === "") {
+      $("#maxNumber").val("999");
+    }
+
     $("#guessNumber").val("");
     $(".resultNum").text("");
 
@@ -19,6 +24,7 @@ $(document).ready(function () {
     let min = parseInt($("#minNumber").val());
     let max = parseInt($("#maxNumber").val());
 
+    // ✅ FIX: only block if REALLY invalid
     if (isNaN(min) || isNaN(max) || min >= max) {
       $(".resultNum").text("Set valid range first!");
       return;
