@@ -1,0 +1,126 @@
+
+.homeIntro {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    color: rgb(155, 155, 148);
+    padding: 20px;
+}
+
+.highlight {
+    cursor: pointer;
+    color: rgb(0, 255, 0);
+    text-decoration: none;
+}
+
+.highlight:hover {
+    text-decoration: underline;
+}
+
+/* Animated Divider */
+.colors {
+    display: flex;
+    width: 90%;
+    overflow: hidden;
+    margin: auto;
+}
+
+.decorLine {
+    display: flex;
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+    display: inline-flex;
+    animation: rainbow 3s alternate-reverse ease-in-out infinite;
+}
+
+/* Chat Interface */
+#chat-container {
+
+    max-width: 900px;
+    margin: 30px auto;
+    background: #111;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.7);
+}
+
+#chat-box {
+    box-shadow: inset 0 0 10px rgba(53, 53, 53, 0.5);
+    height: 500px;
+    overflow-y: auto;
+    background: rgba(26, 26, 26, 0.8);
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Chat Bubbles */
+.my-msg, .other-msg {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    word-wrap: break-word;
+    display: flex;
+    flex-direction: column;
+}
+
+.other-msg {
+    
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+    background: rgba(206, 194, 194, 0.445);
+    color: rgb(255, 255, 255);
+}
+
+.my-msg {
+    color: rgb(72, 255, 0);
+    background-color: rgba(255, 255, 255, 0.438);
+    
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+    text-align: right;
+}
+
+.chat-name {
+     color: rgb(204, 204, 204);
+    font-size: 11px;
+    font-weight: bold;
+    margin-bottom: 4px;
+   
+    text-transform: uppercase;
+}
+
+.other-msg .chat-name { color: #00d4ff; }
+.my-msg .chat-name { color: #00ff88; }
+
+
+@keyframes rainbow {
+    0% { transform: translateX(-20%); color: rgb(16, 241, 241); }
+    50% { color: rgb(255, 255, 255); }
+    100% { transform: translateX(100%); color: rgb(255, 0, 0); }
+}
+
+/* Sparkle Effect Style */
+.sparkle {
+    position: absolute;
+    background: radial-gradient(circle, rgba(0, 255, 0, 1) 0%, rgba(0, 255, 0, 0) 70%);
+    border-radius: 50%;
+    pointer-events: none; /* So it doesn't block clicks */
+    z-index: 9999;
+    animation: sparkle-fade 0.6s ease-out forwards;
+}
+
+@keyframes sparkle-fade {
+    0% {
+        transform: scale(0.5);
+        filter: brightness(1);
+    }
+    100% {
+        transform: scale(1.5);
+        filter: brightness(2);
+        opacity: 0;
+    }
+}
