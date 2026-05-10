@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="shortcut icon" href="favicons/favicon5.ico" type="image/x-icon">
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="global.css">
+<link rel="stylesheet" href="games.css">
+
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Your JS -->
+<script src="games.js" defer></script>
+</head>
+
+<body>
+  <nav class="navbar navbar-dark bg-dark ">
+    <div class="container-fluid">
+      <a class="navbar-brand headingTitle" href="#">Ashu</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar"
+        aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar"
+        aria-labelledby="offcanvasDarkNavbarLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Quick Links</h5>
+          <button type="button" class="btn-close btn-close-wheite" data-bs-dismiss="offcanvas"
+            aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <li class="nav-item">
+              <a class="nav-link " aria-current="page" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="#">Games</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link " href="friends.html">Friends</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="about.html">About</a>
+          </li>
+          </ul>
+          
+        </div>
+      </div>
+    </div>
+  </nav>
+  <h1 class="games1Heading gameHeadings">Games I made</h1>
+  <div class="grid games1">
+    
+    <div class="game game1 g">Number Guessing</div>
+    <div class="game game2 g">Text Typing</div>
+    <div class="game more g">...more</div>
+
+  </div>
+  <center>
+    
+    <div class="game1Center">
+      <h3 class="range">Number Range</h3>
+      <input id="minNumber" class="inputPack" type="text" inputmode="numeric" min="0" value="1"
+        oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+      <input id="maxNumber" class="inputPack" type="text" inputmode="numeric" max="999" value="999"
+        oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+      <br>
+      <div class="submitPack">
+        <input id="guessNumber" required type="text" inputmode="numeric"
+          oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+        <button id="guessButton"><b>Check ></b></button>
+
+      </div>
+
+      <h2 class="resultNum">HAHAHA</h2>
+    </div>
+    <h1 class="gameHeadings">Games I Play</h1>
+     <div class="grid games2">
+    
+    <a href="https://krunker.io/"><div class="game game3 g">Krunker</div></a>
+    <a href="https://bonk.io"><div class="game game4 g">Bonk</div></a>
+    <a href="https://diep.io"><div class="game game5 g">Diep</div></a>
+    <a href="https://lordz.io"><div class="game game6 g">Lordz</div></a>
+    <a href="https://gartic.io"><div class="game game7 g">Gartic</div></a>
+    <a href="https://chess.com"><div class="game game8 g">Chess</div></a>
+
+  </div>
+
+  </center>
+
+
+</body>
+</html>
